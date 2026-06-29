@@ -13,7 +13,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- الرابط الصحيح والنظيف (تم تنظيفه من الزيادات) ---
 const dbURI = "mongodb+srv://safaberhail2006_db_user:8BsDrCa7dZemCaia@cluster0.yh4nxpi.mongodb.net/ryry_store?retryWrites=true&w=majority";
-
 mongoose.connect(dbURI)
     .then(() => console.log('✅ DATABASE CONNECTED SUCCESSFULLY!'))
     .catch(err => console.error('❌ DATABASE CONNECTION ERROR:', err.message));
