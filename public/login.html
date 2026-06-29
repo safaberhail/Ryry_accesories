@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><title>Login Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <style>body { background: var(--primary); display: flex; justify-content: center; align-items: center; height: 100vh; }</style>
+</head>
+<body>
+    <div style="background:white; padding:40px; border-radius:30px; width:350px; text-align:center;">
+        <h2>Admin Ryry</h2><br>
+        <form id="login-form">
+            <input type="email" id="email" class="form-input" placeholder="Email" required>
+            <input type="password" id="pass" class="form-input" placeholder="Pass" required>
+            <button type="submit" class="btn-main" style="width:100%">Entrer</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ email: document.getElementById('email').value, password: document.getElementById('pass').value }) });
+            if (res.ok) { localStorage.setItem('ryry_logged', 'true'); window.location.href = "/ryry-manage"; }
+            else alert("Erreur !");
+        };
+    </script>
+</body>
+</html>

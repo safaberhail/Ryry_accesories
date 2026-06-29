@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin | Ryry's</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #f0f2f5; padding: 50px 0; }
+        .admin-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .product-manage-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; }
+        .order-card { background: #fff; border-left: 5px solid var(--gold); padding: 15px; margin: 10px 0; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align:center; color:var(--primary); margin-bottom:40px;">لوحة تحكم Ryry's Accessory</h1>
+
+        <div class="admin-card">
+            <h2>إضافة منتج جديد</h2>
+            <form id="add-product-form">
+                <input type="text" id="p-name" class="form-input" placeholder="اسم المنتج" required>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="p-price" class="form-input" placeholder="السعر الحالي (DA)" required>
+                    <input type="number" id="p-old-price" class="form-input" placeholder="السعر قبل الخصم (DA)">
+                </div>
+                <input type="text" id="p-image" class="form-input" placeholder="رابط صورة المنتج أو إيموجي" required>
+                <input type="text" id="p-bg" class="form-input" placeholder="لون الخلفية (مثال: #0A4240)" value="#0A4240">
+                <button type="submit" class="btn-main" style="width:100%">إضافة للموقع</button>
+            </form>
+        </div>
+
+        <div class="admin-card">
+            <h2>إدارة المنتجات</h2>
+            <div id="admin-product-list"></div>
+        </div>
+
+        <div class="admin-card">
+            <h2>الطلبات الواصلة (Orders)</h2>
+            <div id="admin-order-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // إضافة منتج
+        document.getElementById('add-product-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                name_fr: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                old_price: document.getElementById('p-old-price').value,
+                image_url: document.getElementById('p-image').value,
+                bg_gradient: document.getElementById('p-bg').value
+            };
+            await fetch('/api/products', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+            location.reload();
+        };
+
+        // تحميل المنتجات والحذف
+        async function loadAdmin() {
+            const resP = await fetch('/api/products');
+            const products = await resP.json();
+            document.getElementById('admin-product-list').innerHTML = products.map(p => `
+                <div class="product-manage-item">
+                    <span>${p.name_fr} - <strong>${p.price} DA</strong></span>
+                    <button class="del-btn" onclick="deleteP('${p._id}')">حذف</button>
+                </div>
+            `).join('');
+
+            const resO = await fetch('/api/orders');
+            const orders = await resO.json();
+            document.getElementById('admin-order-list').innerHTML = orders.map(o => `
+                <div class="order-card">
+                    <strong>${o.customer_name}</strong> - ${o.phone}<br>
+                    المنتج: ${o.product_name} | الولاية: ${o.wilaya}<br>
+                    <small>${new Date(o.date).toLocaleString('fr-FR')}</small>
+                </div>
+            `).join('');
+        }
+
+        async function deleteP(id) {
+            if(confirm("هل أنت متأكد من الحذف؟")) {
+                await fetch('/api/products/' + id, { method: 'DELETE' });
+                location.reload();
+            }
+        }
+        loadAdmin();
+    </script>
+</body>
+</html>
