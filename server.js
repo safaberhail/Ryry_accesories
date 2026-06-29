@@ -23,8 +23,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // الاتصال بـ MongoDB
-mongoose.connect('mongodb://localhost:27017/ryry_store')
-    .then(() => console.log('✅ Connected to MongoDB'))
+const dbURI = "mongodb+srv://safaberhail2006_db_user:8BsDrCa7dZemCaia@cluster0.yh4nxpi.mongodb.net/ryry_store?retryWrites=true&w=majority";
+mongoose.connect(dbURI)    .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('❌ MongoDB Error:', err));
 
 // الموديلات
