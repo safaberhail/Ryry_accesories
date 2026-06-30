@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ryry's Accessory | Luxe & Acier</title>
-    <!-- v=2.0 لإجبار المتصفح على تحديث الستايل -->
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <!-- v=3.0 Pour forcer la mise à jour du cache -->
+    <link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
 
@@ -19,55 +19,48 @@
         </div>
     </nav>
 
-<header class="hero">
-    <div class="container">
-        <div class="hero-content">
-            <span class="hero-badge">✦ COLLECTION ROYALE 2025</span>
-            <h1 id="hero-title">Own Your <em>Elegance</em>,<br>Wear Your Story</h1>
-            <p id="hero-sub">Découvrez des bijoux raffinés en acier inoxydable conçus pour briller éternellement.</p>
-            
-            <button class="btn-main shop-btn" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
-            
-            <!-- مربع التوصيل للهاتف (تم إضافة مسافة في النص) -->
-            <div class="delivery-card-mobile">
-                <div class="fb-icon">🚚</div>
-                <div class="fb-text">
-                    <strong>Livraison Rapide</strong>
-                    <span>Sur les 58 Wilayas</span>
+    <header class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="hero-badge">✦ COLLECTION ROYALE 2025</span>
+                <h1 id="hero-title">Own Your <em>Elegance</em>,<br>Wear Your Story</h1>
+                <p id="hero-sub">Découvrez des bijoux raffinés en acier inoxydable conçus pour briller éternellement.</p>
+
+                <button class="btn-main shop-btn" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
+
+                <!-- Carte de livraison mobile -->
+                <div class="delivery-card-mobile">
+                    <div class="fb-icon">🚚</div>
+                    <div class="fb-text">
+                        <strong>Livraison Rapide</strong>
+                        <span>Sur les 58 Wilayas</span>
+                    </div>
+                </div>
+
+                <!-- Statistiques mobiles -->
+                <div class="hero-stats-mobile">
+                    <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
+                    <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
+                    <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
+                </div>
+
+                <!-- Statistiques desktop -->
+                <div class="hero-stats-desktop">
+                    <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
+                    <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
+                    <div class="stat-item"><span>58</span><small>Wilayas</small></div>
                 </div>
             </div>
+        </div>
 
-            <!-- إحصائيات الهاتف (صناديق منفصلة) -->
-            <div class="hero-stats-mobile">
-                <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
-                <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
-                <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
-            </div>
-
-            <!-- إحصائيات الكمبيوتر -->
-            <div class="hero-stats-desktop">
-                <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
-                <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
-                <div class="stat-item"><span>58</span><small>Wilayas</small></div>
+        <!-- Carte de livraison desktop flottante -->
+        <div class="floating-desktop">
+            <div class="fb-icon">🚚</div>
+            <div class="fb-text">
+                <strong>Livraison Rapide</strong>
+                <small>Sur les 58 Wilayas</small>
             </div>
         </div>
-    </div>
-    
-    <!-- مربع التوصيل للكمبيوتر -->
-    <div class="floating-desktop">
-        <div class="fb-icon">🚚</div>
-        <div class="fb-text">
-            <strong>Livraison Rapide</strong>
-            <small>Sur les 58 Wilayas</small>
-        </div>
-    </div>
-        <div class="delivery-card-mobile">
-                <div class="fb-icon">🚚</div>
-                <div class="fb-text">
-        <strong>Livraison Rapide</strong> <!-- تأكدي من وجود مسافة هنا -->
-        <span>Sur les 58 Wilayas</span>
-    </div>
-</div>
     </header>
 
     <div class="marquee">
@@ -78,26 +71,31 @@
             <div class="marquee-item">💰 PAIEMENT À LA LIVRAISON</div>
             <div class="marquee-item">✨ ACIER INOXYDABLE PREMIUM</div>
             <div class="marquee-item">💎 GARANTIE 10 ANS</div>
+            <div class="marquee-item">🚚 LIVRAISON 58 WILAYAS</div>
+            <div class="marquee-item">💰 PAIEMENT À LA LIVRAISON</div>
         </div>
     </div>
 
     <section class="container section" id="shop">
-        <div class="section-header"><h2>Notre Collection</h2></div>
+        <div class="section-header">
+            <h2>Notre Collection</h2>
+            <p>Des pièces uniques pour révéler votre élégance</p>
+        </div>
         <div class="products-grid" id="product-list"></div>
     </section>
 
-    <!-- نافذة الطلب (يجب أن تظل مخفية بالـ CSS) -->
+    <!-- Modale de commande -->
     <div id="order-modal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--primary); margin-bottom:20px; text-align:center;">Résumé de la Commande</h2>
             <form id="order-form">
                 <input type="hidden" id="selected-product">
-                
+
                 <div class="summary-card">
                     <div class="summary-header">
                         <span id="summary-p-name">Produit</span>
                         <div class="qty-picker">
-                            <button type="button" onclick="changeQty(-1)">-</button>
+                            <button type="button" onclick="changeQty(-1)">−</button>
                             <span id="display-qty">1</span>
                             <button type="button" onclick="changeQty(1)">+</button>
                         </div>
@@ -133,12 +131,12 @@
                     </div>
                     <textarea id="cust-address" class="form-input" placeholder="Adresse précise" style="height:60px" required></textarea>
                 </div>
-                <button type="submit" class="btn-main" style="width: 100%; margin-top: 10px;">Confirmer la commande</button>
-                <button type="button" onclick="closeModal()" style="background:none; border:none; width:100%; margin-top:10px; color:#999; cursor:pointer;">Annuler</button>
+                <button type="submit" class="btn-main btn-confirm">Confirmer la commande</button>
+                <button type="button" onclick="closeModal()" class="btn-cancel">Annuler</button>
             </form>
         </div>
     </div>
 
-    <script src="script.js?v=2.0"></script>
+    <script src="script.js?v=3.0"></script>
 </body>
 </html>
