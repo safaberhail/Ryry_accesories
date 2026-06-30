@@ -4,74 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ryry's Accessory | Luxe & Acier</title>
-    <link rel="stylesheet" href="/style.css?v=1.2"></head>
+    <!-- v=2.0 لإجبار المتصفح على تحديث الستايل -->
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
 <body>
+
     <nav id="nav">
         <div class="container nav-inner">
             <div class="nav-brand-area">
-                <a href="#" class="nav-logo">Ryry's <span>Accessory</span></a>
+                <a href="/" class="nav-logo">Ryry's <span>Accessory</span></a>
                 <a href="/login" class="admin-hidden-link">الإدارة</a>
             </div>
-            <button class="btn-main" style="padding: 10px 25px; font-size: 0.8rem;" onclick="document.getElementById('shop').scrollIntoView()">Commander</button>
+            <button class="btn-main pc-nav-btn" onclick="document.getElementById('shop').scrollIntoView()">Commander</button>
         </div>
     </nav>
 
-<nav id="nav">
-    <div class="container nav-inner">
-        <div class="nav-brand-area">
-            <a href="#" class="nav-logo">Ryry's <span>Accessory</span></a>
-        </div>
-        <!-- أيقونة القائمة للهاتف (ثلاث خطوط) -->
-        <div class="mobile-menu-icon">
-            <span></span><span></span><span></span>
-        </div>
-        <button class="btn-main pc-only-btn" onclick="document.getElementById('shop').scrollIntoView()">Commander</button>
-    </div>
-</nav>
+    <header class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">✦ Collection Royale 2025</span>
+                <h1>Own Your <em>Elegance</em>,<br>Wear Your Story</h1>
+                <p>Découvrez des bijoux raffinés en acier inoxydable conçus pour briller éternellement.</p>
+                <button class="btn-main" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
+                
+                <div class="hero-stats-desktop">
+                    <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
+                    <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
+                    <div class="stat-item"><span>58</span><small>Wilayas</small></div>
+                </div>
 
-<header class="hero">
-    <div class="container">
-        <div class="hero-content">
-            <span class="hero-badge">✦ COLLECTION ROYALE 2025</span>
-            <h1 id="hero-title">Own Your <em>Elegance</em>,<br>Wear Your Story</h1>
-            <p id="hero-sub">Découvrez des bijoux raffinés en acier inoxydable conçus pour briller éternellement.</p>
-            
-            <button class="btn-main shop-btn" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
-            
-            <!-- هذا المربع يظهر في الهاتف فقط -->
-            <div class="delivery-card-mobile">
-                <div class="fb-icon">🚚</div>
-                <div class="fb-text">
-                    <strong>Livraison Rapide</strong>
-                    <small>Sur les 58 Wilayas</small>
+                <div class="hero-stats-mobile">
+                    <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
+                    <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
+                    <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
                 </div>
             </div>
-
-            <!-- إحصائيات الكمبيوتر (أفقية) -->
-            <div class="hero-stats-desktop">
-                <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
-                <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
-                <div class="stat-item"><span>58</span><small>Wilayas</small></div>
-            </div>
-
-            <!-- إحصائيات الهاتف (صناديق) -->
-            <div class="hero-stats-mobile">
-                <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
-                <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
-                <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
-            </div>
         </div>
-    </div>
-    
-    <!-- المربع العائم يظهر في الكمبيوتر فقط -->
-    <div class="floating-desktop">
-        <div class="fb-icon">🚚</div>
-        <div class="fb-text">
-            <strong>Livraison Rapide</strong>
-            <small>Sur les 58 Wilayas</small>
+        <div class="floating-desktop">
+            <div class="fb-icon">🚚</div>
+            <div class="fb-text"><strong>Livraison Rapide</strong><small>Sur les 58 Wilayas</small></div>
         </div>
-    </div>
-</header>    <div class="marquee">
+        <div class="delivery-card-mobile">
+            <div class="fb-icon">🚚</div>
+            <div class="fb-text"><strong>Livraison Rapide</strong><small>Sur les 58 Wilayas</small></div>
+        </div>
+    </header>
+
+    <div class="marquee">
         <div class="marquee-track">
             <div class="marquee-item">✨ ACIER INOXYDABLE PREMIUM</div>
             <div class="marquee-item">💎 GARANTIE 10 ANS</div>
@@ -87,43 +66,30 @@
         <div class="products-grid" id="product-list"></div>
     </section>
 
-    <!-- Modal المطور (ملخص الطلب) -->
+    <!-- نافذة الطلب (يجب أن تظل مخفية بالـ CSS) -->
     <div id="order-modal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--primary); margin-bottom:20px; text-align:center;">Résumé de la Commande</h2>
-            
             <form id="order-form">
                 <input type="hidden" id="selected-product">
                 
-                <!-- بطاقة ملخص السعر والكمية -->
                 <div class="summary-card">
                     <div class="summary-header">
-                        <span id="summary-p-name">Nom du Produit</span>
+                        <span id="summary-p-name">Produit</span>
                         <div class="qty-picker">
                             <button type="button" onclick="changeQty(-1)">-</button>
                             <span id="display-qty">1</span>
                             <button type="button" onclick="changeQty(1)">+</button>
                         </div>
                     </div>
-                    
                     <div class="summary-body">
-                        <div class="summary-row">
-                            <span>Prix unitaire</span>
-                            <span id="unit-price">0 DA</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Frais de livraison</span>
-                            <span id="delivery-price" style="color:var(--gold); font-weight:bold;">Choisir Wilaya</span>
-                        </div>
+                        <div class="summary-row"><span>Prix unitaire</span><span id="unit-price">0 DA</span></div>
+                        <div class="summary-row"><span>Livraison</span><span id="delivery-price">0 DA</span></div>
                         <div class="total-divider"></div>
-                        <div class="summary-row total">
-                            <span>Total à payer</span>
-                            <span id="total-price">0 DA</span>
-                        </div>
+                        <div class="summary-row total"><span>Total à payer</span><span id="total-price">0 DA</span></div>
                     </div>
                 </div>
 
-                <!-- خيارات نوع التوصيل -->
                 <div class="delivery-methods">
                     <label class="method-option">
                         <input type="radio" name="del-type" value="home" checked onchange="calculateTotal()">
@@ -135,85 +101,24 @@
                     </label>
                 </div>
 
-                <!-- فورم المعلومات -->
                 <div class="form-container">
                     <input type="text" id="cust-name" class="form-input" placeholder="Nom et Prénom" required>
                     <input type="tel" id="cust-phone" class="form-input" placeholder="Téléphone" required>
-                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <select id="cust-wilaya" class="form-input" required onchange="updateCommunes(); calculateTotal();">
                             <option value="">Wilaya</option>
-<option value="01">01-Adrar</option>
-<option value="02">02-Chlef</option>
-<option value="03">03-Laghouat</option>
-<option value="04">04-Oum El Bouaghi</option>
-<option value="05">05-Batna</option>
-<option value="06">06-Bejaia</option>
-<option value="07">07-Biskra</option>
-<option value="08">08-Bechar</option>
-<option value="09">09-Blida</option>
-<option value="10">10-Bouira</option>
-<option value="11">11-Tamanrasset</option>
-<option value="12">12-Tebessa</option>
-<option value="13">13-Tlemcen</option>
-<option value="14">14-Tiaret</option>
-<option value="15">15-Tizi Ouzou</option>
-<option value="16">16-Alger</option>
-<option value="17">17-Djelfa</option>
-<option value="18">18-Jijel</option>
-<option value="19">19-Setif</option>
-<option value="20">20-Saida</option>
-<option value="21">21-Skikda</option>
-<option value="22">22-Sidi Bel Abbes</option>
-<option value="23">23-Annaba</option>
-<option value="24">24-Guelma</option>
-<option value="25">25-Constantine</option>
-<option value="26">26-Medea</option>
-<option value="27">27-Mostaganem</option>
-<option value="28">28-M'Sila</option>
-<option value="29">29-Mascara</option>
-<option value="30">30-Ouargla</option>
-<option value="31">31-Oran</option>
-<option value="32">32-El Bayadh</option>
-<option value="33">33-Illizi</option>
-<option value="34">34-Bordj Bou Arreridj</option>
-<option value="35">35-Boumerdes</option>
-<option value="36">36-El Tarf</option>
-<option value="37">37-Tindouf</option>
-<option value="38">38-Tissemsilt</option>
-<option value="39">39-El Oued</option>
-<option value="40">40-Khenchela</option>
-<option value="41">41-Souk Ahras</option>
-<option value="42">42-Tipaza</option>
-<option value="43">43-Mila</option>
-<option value="44">44-Ain Defla</option>
-<option value="45">45-Naama</option>
-<option value="46">46-Ain Temouchent</option>
-<option value="47">47-Ghardaia</option>
-<option value="48">48-Relizane</option>
-<option value="49">49-Timimoun</option>
-<option value="50">50-Bordj Badji Mokhtar</option>
-<option value="51">51-Ouled Djellal</option>
-<option value="52">52-Beni Abbes</option>
-<option value="53">53-In Salah</option>
-<option value="54">54-In Guezzam</option>
-<option value="55">55-Touggourt</option>
-<option value="56">56-Djanet</option>
-<option value="57">57-El M'Ghair</option>
-<option value="58">58-El Meniaa</option>                        </select>
-                        <select id="cust-commune" class="form-input" required>
-                            <option value="">Commune</option>
+                            <option value="01">01 Adrar</option><option value="02">02 Chlef</option><option value="03">03 Laghouat</option><option value="04">04 Oum El Bouaghi</option><option value="05">05 Batna</option><option value="06">06 Béjaïa</option><option value="07">07 Biskra</option><option value="08">08 Béchar</option><option value="09">09 Blida</option><option value="10">10 Bouira</option><option value="11">11 Tamanrasset</option><option value="12">12 Tébessa</option><option value="13">13 Tlemcen</option><option value="14">14 Tiaret</option><option value="15">15 Tizi Ouzou</option><option value="16">16 Alger</option><option value="17">17 Djelfa</option><option value="18">18 Jijel</option><option value="19">19 Sétif</option><option value="20">20 Saïda</option><option value="21">21 Skikda</option><option value="22">22 Sidi Bel Abbès</option><option value="23">23 Annaba</option><option value="24">24 Guelma</option><option value="25">25 Constantine</option><option value="26">26 Médéa</option><option value="27">27 Mostaganem</option><option value="28">28 M'Sila</option><option value="29">29 Mascara</option><option value="30">30 Ouargla</option><option value="31">31 Oran</option><option value="32">32 El Bayadh</option><option value="33">33 Illizi</option><option value="34">34 Bordj Bou Arreridj</option><option value="35">35 Boumerdès</option><option value="36">36 El Tarf</option><option value="37">37 Tindouf</option><option value="38">38 Tissemsilt</option><option value="39">39 El Oued</option><option value="40">40 Khenchela</option><option value="41">41 Souk Ahras</option><option value="42">42 Tipaza</option><option value="43">43 Mila</option><option value="44">44 Aïn Defla</option><option value="45">45 Naâma</option><option value="46">46 Aïn Témouchent</option><option value="47">47 Ghardaïa</option><option value="48">48 Relizane</option><option value="49">49 Timimoun</option><option value="50">50 Bordj Badji Mokhtar</option><option value="51">51 Ouled Djellal</option><option value="52">52 Béni Abbès</option><option value="53">53 In Salah</option><option value="54">54 In Guezzam</option><option value="55">55 Touggourt</option><option value="56">56 Djanet</option><option value="57">57 El M'Ghair</option><option value="58">58 El Meniaa</option>
                         </select>
+                        <select id="cust-commune" class="form-input" required><option value="">Commune</option></select>
                     </div>
                     <textarea id="cust-address" class="form-input" placeholder="Adresse précise" style="height:60px" required></textarea>
                 </div>
-                
-                <button type="submit" class="btn-main" style="width: 100%; padding: 18px; margin-top: 10px;">Confirmer la commande</button>
+                <button type="submit" class="btn-main" style="width: 100%; margin-top: 10px;">Confirmer la commande</button>
                 <button type="button" onclick="closeModal()" style="background:none; border:none; width:100%; margin-top:10px; color:#999; cursor:pointer;">Annuler</button>
             </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2.0"></script>
 </body>
 </html>

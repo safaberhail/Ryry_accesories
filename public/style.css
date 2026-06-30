@@ -1,67 +1,75 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500;700&display=swap');
 
 :root {
-  --primary: #0A4240;
-  --gold: #D4A853;
-  --ivory: #FDF8F5;
-  --white: #FFFFFF;
-  --radius: 50px;
-  --shadow: 0 20px 40px rgba(10, 66, 64, 0.1);
+  --primary: #0A4240; --gold: #D4A853; --ivory: #FDF8F5; --white: #FFFFFF; --radius: 50px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: var(--ivory); color: #1A2E2A; line-height: 1.6; overflow-x: hidden; }
+body { font-family: 'DM Sans', sans-serif; background: var(--ivory); color: #1A2E2A; overflow-x: hidden; }
 h1, h2 { font-family: 'Playfair Display', serif; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 25px; }
 
-/* ── Navbar ── */
+/* Navbar */
 #nav { position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(253, 248, 245, 0.95); backdrop-filter: blur(15px); padding: 15px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
 .nav-inner { display: flex; justify-content: space-between; align-items: center; }
 .nav-logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); text-decoration: none; }
 .nav-logo span { color: var(--gold); }
+.admin-hidden-link { font-size: 0.7rem; opacity: 0.05; color: var(--primary); text-decoration: none; }
 
-/* ── Hero (Desktop First) ── */
-.hero { min-height: 90vh; background: linear-gradient(135deg, var(--primary), #165e5b); display: flex; align-items: center; color: white; padding-top: 80px; position: relative; overflow: hidden; }
-.hero-content { max-width: 700px; }
+/* Hero Desktop */
+.hero { min-height: 85vh; background: linear-gradient(135deg, var(--primary), #165e5b); display: flex; align-items: center; color: white; padding-top: 80px; position: relative; overflow: hidden; }
 .hero h1 { font-size: 4rem; line-height: 1.1; margin-bottom: 25px; }
 .hero h1 em { color: var(--gold); font-style: italic; }
-
-/* إحصائيات الكمبيوتر */
 .hero-stats-desktop { display: flex; gap: 40px; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px; }
 .stat-item span { display: block; font-size: 1.8rem; font-weight: bold; color: var(--gold); }
+.floating-desktop { position: absolute; bottom: 15%; right: 5%; background: white; padding: 15px 25px; border-radius: 20px; color: var(--primary); display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
-/* المربع العائم للكمبيوتر */
-.floating-desktop { position: absolute; bottom: 15%; right: 5%; background: white; padding: 15px 25px; border-radius: 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 15px; color: var(--primary); animation: float 4s ease-in-out infinite; }
+/* Hide Mobile Elements on Desktop */
+.hero-stats-mobile, .delivery-card-mobile { display: none; }
 
-/* إخفاء عناصر الهاتف في الكمبيوتر */
-.delivery-card-mobile, .hero-stats-mobile { display: none; }
+/* Marquee */
+.marquee { background: var(--gold); color: var(--primary); padding: 12px 0; overflow: hidden; }
+.marquee-track { display: flex; width: max-content; animation: scroll 30s linear infinite; }
+.marquee-item { padding: 0 40px; font-weight: bold; font-size: 0.8rem; }
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
-/* ── Products & Others ── */
+/* Products */
+.section { padding: 80px 0; }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-.product-card { background: white; border-radius: 30px; padding: 15px; text-align: center; }
-.btn-main { background: var(--gold); color: white; padding: 15px 40px; border-radius: var(--radius); border: none; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; }
+.product-card { background: white; border-radius: 30px; padding: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
+.product-img-wrapper { height: 280px; background: var(--ivory); border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.product-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+.price-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 15px 0; }
+.current-price { font-weight: bold; color: var(--primary); font-size: 1.3rem; }
+.old-price { text-decoration: line-through; color: #999; font-size: 1rem; }
 
-/* 📱 📱 📱 هـــــام جـــــداً: تـنـسـيـق الـهـاتـف 📱 📱 📱 */
+/* MODAL (Hiding it properly) */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none !important; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+/* This class will be added by JS */
+.modal.active { display: flex !important; }
+
+.modal-content { background: white; padding: 30px; border-radius: 30px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+.summary-card { background: #f4f8f7; border: 1px solid #e0eceb; border-radius: 20px; padding: 15px; margin-bottom: 20px; }
+.summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.qty-picker { display: flex; align-items: center; background: white; border-radius: 50px; padding: 2px; border: 1px solid #ddd; }
+.qty-picker button { width: 25px; height: 25px; border-radius: 50%; border: none; background: var(--gold); color: white; cursor: pointer; }
+.summary-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9rem; }
+.summary-row.total { font-weight: bold; color: var(--primary); font-size: 1.2rem; }
+
+.delivery-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.method-option input { display: none; }
+.method-box { border: 1px solid #eee; padding: 10px; border-radius: 12px; text-align: center; background: white; font-size: 0.8rem; cursor: pointer; }
+.method-option input:checked + .method-box { border-color: var(--primary); background: #eef5f4; color: var(--primary); font-weight: bold; }
+
+.btn-main { background: var(--gold); color: white; padding: 15px 30px; border-radius: var(--radius); border: none; font-weight: bold; cursor: pointer; }
+.form-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; border-radius: 10px; }
+
+/* Mobile Query */
 @media (max-width: 768px) {
-    .hero { text-align: center; padding-top: 100px; min-height: auto; padding-bottom: 60px; }
-    .hero-content { margin: 0 auto; }
+    .hero { text-align: center; padding-top: 100px; min-height: auto; padding-bottom: 40px; }
     .hero h1 { font-size: 2.8rem; }
-    
-    /* إخفاء عناصر الكمبيوتر في الهاتف */
-    .hero-stats-desktop, .floating-desktop { display: none; }
-
-    /* إظهار وتنسيق عناصر الهاتف */
-    .delivery-card-mobile { 
-        display: flex; background: white; padding: 15px; border-radius: 20px; 
-        margin: 30px auto; width: 100%; text-align: left; color: var(--primary); 
-    }
-    .hero-stats-mobile { 
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; 
-        margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;
-    }
-    .stat-box { border: 1px solid rgba(255,255,255,0.2); padding: 15px 5px; border-radius: 15px; }
-    .stat-box span { display: block; font-size: 1.1rem; font-weight: bold; color: var(--gold); }
-    .stat-box small { font-size: 0.6rem; color: rgba(255,255,255,0.7); }
+    .hero-stats-desktop, .floating-desktop, .pc-nav-btn { display: none; }
+    .hero-stats-mobile { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 30px; }
+    .stat-box { border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 15px; }
+    .delivery-card-mobile { display: flex; background: white; padding: 15px; border-radius: 20px; margin-top: 30px; align-items: center; gap: 15px; text-align: left; }
 }

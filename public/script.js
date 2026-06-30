@@ -232,28 +232,27 @@ list.innerHTML = products.map(p => {
 }
 
 // دالة فتح الطلب وتمرير السعر
-function openOrder(pName, price) {
-    // تخزين سعر المنتج في متغير عالمي لاستخدامه في الحساب
-    currentUnitPrice = price; 
-    currentQty = 1;
+// ... قاعدة البيانات السابقة كما هي ...
 
+function openOrder(pName, price) {
+    currentUnitPrice = price;
+    currentQty = 1;
     document.getElementById('selected-product').value = pName;
     document.getElementById('summary-p-name').innerText = pName;
     document.getElementById('unit-price').innerText = price + " DA";
     document.getElementById('display-qty').innerText = currentQty;
     
-    // إظهار المودال
-    document.getElementById('order-modal').style.display = 'flex';
+    // استخدام classList لإظهار المودال بدلاً من style.display مباشرة
+    const modal = document.getElementById('order-modal');
+    modal.classList.add('active');
     
-    // تشغيل الحساب المبدئي
     calculateTotal();
 }
 
-// دالة إغلاق المودال
 function closeModal() {
-    document.getElementById('order-modal').style.display = 'none';
+    const modal = document.getElementById('order-modal');
+    modal.classList.remove('active');
 }
-
 // ... (دوال changeQty و calculateTotal وإرسال الطلب كما هي) ...
 fetchProducts();
 function closeModal() {
