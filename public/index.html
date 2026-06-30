@@ -19,31 +19,48 @@
         </div>
     </nav>
 
-    <header class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <span class="hero-badge">✦ Collection Royale </span>
-                <h1>Own Your <em>Elegance</em>,<br>Wear Your Story</h1>
-                <p>Découvrez des bijoux raffinés en acier inoxydable conçus pour briller éternellement.</p>
-                <button class="btn-main" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
-                
-                <div class="hero-stats-desktop">
-                    <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
-                    <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
-                    <div class="stat-item"><span>58</span><small>Wilayas</small></div>
-                </div>
-
-                <div class="hero-stats-mobile">
-                    <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
-                    <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
-                    <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
+<header class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <span class="hero-badge">✦ COLLECTION ROYALE 2025</span>
+            <h1 id="hero-title">Own Your <em>Elegance</em>,<br>Wear Your Story</h1>
+            <p id="hero-sub">Découvrez des bijoux raffinés en acier inoxydable conçus pour briller éternellement.</p>
+            
+            <button class="btn-main shop-btn" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
+            
+            <!-- مربع التوصيل للهاتف (تم إضافة مسافة في النص) -->
+            <div class="delivery-card-mobile">
+                <div class="fb-icon">🚚</div>
+                <div class="fb-text">
+                    <strong>Livraison Rapide</strong>
+                    <span>Sur les 58 Wilayas</span>
                 </div>
             </div>
+
+            <!-- إحصائيات الهاتف (صناديق منفصلة) -->
+            <div class="hero-stats-mobile">
+                <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
+                <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
+                <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
+            </div>
+
+            <!-- إحصائيات الكمبيوتر -->
+            <div class="hero-stats-desktop">
+                <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
+                <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
+                <div class="stat-item"><span>58</span><small>Wilayas</small></div>
+            </div>
         </div>
-        <div class="floating-desktop">
-            <div class="fb-icon">🚚</div>
-            <div class="fb-text"><strong>Livraison Rapide</strong><small>Sur les 58 Wilayas</small></div>
+    </div>
+    
+    <!-- مربع التوصيل للكمبيوتر -->
+    <div class="floating-desktop">
+        <div class="fb-icon">🚚</div>
+        <div class="fb-text">
+            <strong>Livraison Rapide</strong>
+            <small>Sur les 58 Wilayas</small>
         </div>
+    </div>
         <div class="delivery-card-mobile">
                 <div class="fb-icon">🚚</div>
                 <div class="fb-text">
