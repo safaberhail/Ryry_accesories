@@ -60,7 +60,7 @@ const algeriaCities = {
     "58": ["El Meniaa", "Hassi Gara"]
 };
 
-// 2. المتغيرات العالمية للحسابات
+// 2. المتغيرات العالمية
 let currentQty = 1;
 let currentUnitPrice = 0;
 
@@ -170,7 +170,7 @@ function calculateTotal() {
     document.getElementById('total-price').innerText = total + " DA";
 }
 
-// 6. جلب المنتجات وعرضها
+// 6. جلب المنتجات وعرضها (نسخة محسنة)
 async function fetchProducts() {
     try {
         const res = await fetch('/api/products');
@@ -179,31 +179,29 @@ async function fetchProducts() {
         if(!list) return;
 
         list.innerHTML = products.map(p => {
+            // صورة افتراضية جميلة
+            const defaultImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%230A4240'/%3E%3Ctext x='150' y='130' font-family='Arial' font-size='24' fill='%23D4A853' text-anchor='middle' dy='.3em' font-weight='bold'%3ERyry's%3C/text%3E%3Ctext x='150' y='170' font-family='Arial' font-size='18' fill='%23D4A853' text-anchor='middle'%3EAccessory%3C/text%3E%3Ctext x='150' y='210' font-family='Arial' font-size='14' fill='%23E5C27D' text-anchor='middle'%3E💎 Luxe %26 Acier%3C/text%3E%3C/svg%3E";
+            
             // بناء مسار الصورة بشكل صحيح
-            let imgPath = '';
+            let imgPath = defaultImg;
             
             if (p.image_url) {
-                // تنظيف المسار
                 let cleanPath = p.image_url;
                 
                 // إزالة public/ إذا وجدت
                 cleanPath = cleanPath.replace(/^public\//, '');
                 
-                // التأكد من أن المسار يبدأ بـ /uploads/
-                if (!cleanPath.startsWith('/uploads/') && !cleanPath.startsWith('http')) {
-                    // إذا كان يبدأ بـ uploads/ بدون slash
-                    if (cleanPath.startsWith('uploads/')) {
-                        cleanPath = '/' + cleanPath;
-                    } else {
-                        cleanPath = '/uploads/' + cleanPath;
-                    }
+                // إذا كان المسار يبدأ بـ uploads/ (بدون slash)
+                if (cleanPath.startsWith('uploads/')) {
+                    cleanPath = '/' + cleanPath;
+                }
+                // إذا كان المسار لا يبدأ بـ /uploads/ وليس رابطاً كاملاً
+                else if (!cleanPath.startsWith('/uploads/') && !cleanPath.startsWith('http')) {
+                    cleanPath = '/uploads/' + cleanPath;
                 }
                 
                 imgPath = cleanPath;
             }
-            
-            // صورة افتراضية في حالة عدم وجود صورة أو فشل التحميل
-            const defaultImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%230A4240'/%3E%3Ctext x='150' y='140' font-family='Arial' font-size='22' fill='%23D4A853' text-anchor='middle' dy='.3em' font-weight='bold'%3ERyry's%3C/text%3E%3Ctext x='150' y='175' font-family='Arial' font-size='16' fill='%23D4A853' text-anchor='middle'%3EAccessory%3C/text%3E%3C/svg%3E";
 
             let oldPriceHtml = '';
             if (p.old_price && p.old_price > 0) {
@@ -213,7 +211,7 @@ async function fetchProducts() {
             return `
             <div class="product-card">
                 <div class="product-img-wrapper" style="background:${p.bg_gradient || '#0A4240'}">
-                    <img src="${imgPath || defaultImg}" 
+                    <img src="${imgPath}" 
                          alt="${p.name_fr}" 
                          onerror="this.src='${defaultImg}'"
                          loading="lazy">
@@ -247,7 +245,7 @@ function openOrder(pName, price) {
     
     const modal = document.getElementById('order-modal');
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // منع التمرير خلف المودال
+    document.body.style.overflow = 'hidden';
     
     calculateTotal();
 }
@@ -256,7 +254,7 @@ function openOrder(pName, price) {
 function closeModal() {
     const modal = document.getElementById('order-modal');
     modal.classList.remove('active');
-    document.body.style.overflow = ''; // إعادة التمرير
+    document.body.style.overflow = '';
 }
 
 // 9. التحكم في الكمية
@@ -288,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 address: document.getElementById('cust-address').value
             };
 
-            // التحقق من صحة البيانات
             if (!data.customer_name || !data.phone || !data.wilaya || !data.commune || !data.address) {
                 alert("⚠️ Veuillez remplir tous les champs.");
                 return;
@@ -305,7 +302,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert("✅ Merci! Votre commande a été reçue.");
                     closeModal();
                     e.target.reset();
-                    // إعادة تعيين الكمية
                     currentQty = 1;
                     document.getElementById('display-qty').innerText = '1';
                 } else {
@@ -339,7 +335,6 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     fetchProducts();
     
-    // التأكد من وجود مستمع لتغيير wilaya
     const wilayaSelect = document.getElementById('cust-wilaya');
     if (wilayaSelect) {
         wilayaSelect.addEventListener('change', function() {
@@ -348,14 +343,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // التأكد من وجود مستمع لتغيير نوع التوصيل
     const deliveryRadios = document.querySelectorAll('input[name="del-type"]');
     deliveryRadios.forEach(radio => {
         radio.addEventListener('change', calculateTotal);
     });
 });
 
-// 14. دالة مساعدة لفتح المودال من أي مكان (للتوافق مع onclick في HTML)
+// 14. دالة مساعدة لفتح المودال من أي مكان
 window.openOrder = openOrder;
 window.closeModal = closeModal;
 window.changeQty = changeQty;

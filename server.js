@@ -11,31 +11,23 @@ app.use(cors());
 
 // --- 1. إعدادات البوت ---
 const BOT_TOKEN = '8879359089:AAGElzjWJKZuyriJWJm0OkocuWxWjeZ_wMQ';
-const CHAT_ID = '5235221577'; // معرف صاحب المتجر
+const CHAT_ID = '5235221577';
 
-// دالة إرسال رسالة إلى التيليجرام
 async function sendTelegramMessage(message) {
     try {
         const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
                 text: message,
                 parse_mode: 'HTML'
             })
         });
-        
-        if (!response.ok) {
-            const error = await response.text();
-            console.error('Erreur Telegram:', error);
-        }
         return response.ok;
     } catch (error) {
-        console.error('Erreur envoi Telegram:', error);
+        console.error('Erreur Telegram:', error);
         return false;
     }
 }
@@ -44,6 +36,7 @@ async function sendTelegramMessage(message) {
 const publicDir = path.join(__dirname, 'public');
 const uploadDir = path.join(publicDir, 'uploads');
 
+// التأكد من وجود المجلدات
 if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
 }
@@ -58,18 +51,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// --- 3. خدمة الملفات الثابتة ---
+// --- 3. خدمة الملفات الثابتة (مهم جداً للصور) ---
 app.use(express.static(publicDir));
 app.use('/uploads', express.static(uploadDir));
 
-// --- 4. الاتصال بـ MongoDB Atlas ---
+// --- 4. الاتصال بـ MongoDB ---
 const dbURI = "mongodb+srv://safaberhail2006_db_user:8BsDrCa7dZemCaia@cluster0.yh4nxpi.mongodb.net/ryry_store?retryWrites=true&w=majority";
 
 mongoose.connect(dbURI, { serverSelectionTimeoutMS: 5000 })
     .then(() => console.log('✅ Connected to MongoDB Atlas'))
     .catch(err => console.error('❌ Connection Error:', err.message));
 
-// --- 5. الموديلات (Models) ---
+// --- 5. الموديلات ---
 const Admin = mongoose.model('Admin', new mongoose.Schema({ 
     email: { type: String, unique: true }, 
     password: { type: String } 
@@ -96,35 +89,95 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now } 
 }));
 
-// --- 6. مسار إصلاح الصور ---
-app.get('/fix-images', async (req, res) => {
+// --- 6. مسار إصلاح جميع الصور (الحل السحري) ---
+app.get('/fix-all-images', async (req, res) => {
     try {
         const products = await Product.find();
         let fixed = 0;
         
         for (const product of products) {
-            let newPath = product.image_url;
-            if (newPath) {
-                if (newPath.includes('public/uploads/')) {
-                    newPath = newPath.replace('public/uploads/', '/uploads/');
+            let oldPath = product.image_url;
+            let newPath = oldPath;
+            
+            if (oldPath) {
+                // الحالة 1: public/uploads/xxx
+                if (oldPath.includes('public/uploads/')) {
+                    newPath = oldPath.replace('public/uploads/', '/uploads/');
+                }
+                // الحالة 2: uploads/xxx (بدون slash)
+                else if (oldPath.startsWith('uploads/')) {
+                    newPath = '/' + oldPath;
+                }
+                // الحالة 3: xxx (اسم ملف فقط)
+                else if (!oldPath.startsWith('/uploads/') && !oldPath.startsWith('http')) {
+                    newPath = '/uploads/' + oldPath;
+                }
+                // الحالة 4: /uploads/xxx (صحيح) - لا نغيره
+                
+                // إذا تغير المسار
+                if (newPath !== oldPath) {
                     product.image_url = newPath;
                     await product.save();
                     fixed++;
-                } else if (newPath.startsWith('uploads/')) {
-                    newPath = '/' + newPath;
-                    product.image_url = newPath;
-                    await product.save();
-                    fixed++;
-                } else if (!newPath.startsWith('/uploads/') && !newPath.startsWith('http')) {
-                    newPath = '/uploads/' + newPath;
-                    product.image_url = newPath;
-                    await product.save();
-                    fixed++;
+                    console.log(`✅ Fixé: ${oldPath} → ${newPath}`);
                 }
             }
         }
         
-        res.send(`<h1>✅ ${fixed} produits corrigés !</h1><p>Les chemins d'images ont été réparés.</p><a href="/">Retour au site</a>`);
+        // عرض نتيجة الإصلاح مع رابط للعودة
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial; text-align: center; padding: 50px; background: #f5f5f5; }
+                    .container { background: white; padding: 40px; border-radius: 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+                    h1 { color: #0A4240; }
+                    .success { color: green; font-size: 48px; }
+                    .btn { display: inline-block; padding: 12px 30px; background: #0A4240; color: white; text-decoration: none; border-radius: 50px; margin-top: 20px; }
+                    .details { text-align: left; margin: 20px 0; padding: 20px; background: #f9f9f9; border-radius: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="success">✅</div>
+                    <h1>${fixed} produits corrigés !</h1>
+                    <div class="details">
+                        <strong>Détails :</strong><br>
+                        Total produits: ${products.length}<br>
+                        Corrigés: ${fixed}<br>
+                        Non corrigés: ${products.length - fixed}
+                    </div>
+                    <a href="/" class="btn">🏠 Retour au site</a>
+                    <br><br>
+                    <a href="/fix-images-debug" class="btn" style="background: #D4A853;">🔍 Voir détails</a>
+                </div>
+            </body>
+            </html>
+        `);
+    } catch (e) {
+        res.status(500).send('Erreur: ' + e.message);
+    }
+});
+
+// مسار لعرض تفاصيل الصور (للتشخيص)
+app.get('/fix-images-debug', async (req, res) => {
+    try {
+        const products = await Product.find();
+        let html = '<h1>Détails des produits</h1><table border="1" style="border-collapse:collapse;width:100%">';
+        html += '<tr><th>Nom</th><th>Image URL</th><th>Statut</th></tr>';
+        
+        for (const p of products) {
+            const imgPath = p.image_url || 'Aucune';
+            const exists = imgPath && imgPath !== 'Aucune' ? '✅' : '❌';
+            html += `<tr>
+                <td>${p.name_fr}</td>
+                <td>${imgPath}</td>
+                <td>${exists}</td>
+            </tr>`;
+        }
+        html += '</table><br><a href="/">Retour</a>';
+        res.send(html);
     } catch (e) {
         res.status(500).send('Erreur: ' + e.message);
     }
@@ -137,7 +190,7 @@ app.get('/setup', async (req, res) => {
     try {
         await Admin.deleteMany({});
         await new Admin({ email: "admin@ryry.com", password: "ryry_password_2025" }).save();
-        res.send("<h1>✅ Admin Ready on Render!</h1>");
+        res.send("<h1>✅ Admin Ready!</h1>");
     } catch (e) { res.status(500).send("Error: " + e.message); }
 });
 
@@ -167,13 +220,15 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
             return res.status(400).json({ error: 'Aucune image téléchargée' });
         }
         
-        console.log('Fichier reçu:', req.file.filename);
+        // مسار الصورة الصحيح
+        const imagePath = '/uploads/' + req.file.filename;
+        console.log('✅ Image sauvegardée:', imagePath);
         
         const newP = new Product({
             name_fr: req.body.name_fr,
             price: Number(req.body.price),
             old_price: req.body.old_price ? Number(req.body.old_price) : null,
-            image_url: '/uploads/' + req.file.filename,
+            image_url: imagePath,
             bg_gradient: req.body.bg_gradient || '#0A4240'
         });
         await newP.save();
@@ -190,32 +245,28 @@ app.delete('/api/products/:id', async (req, res) => {
         await Product.findByIdAndDelete(req.params.id);
         res.json({ success: true });
     } catch (e) { 
-        console.error('Erreur suppression produit:', e);
         res.status(500).json({ error: e.message }); 
     }
 });
 
-// جلب كل الطلبات
+// جلب الطلبات
 app.get('/api/orders', async (req, res) => {
     try {
         const orders = await Order.find().sort({ date: -1 });
         res.json(orders);
     } catch (e) { 
-        console.error('Erreur fetch orders:', e);
         res.status(500).json({ error: e.message }); 
     }
 });
 
-// استقبال طلب جديد (مع إرسال إشعار إلى التيليجرام)
+// استقبال طلب جديد
 app.post('/api/orders', async (req, res) => {
     try {
         const orderData = req.body;
-        
-        // حفظ الطلب في قاعدة البيانات
         const newOrder = new Order(orderData);
         await newOrder.save();
         
-        // ====== إرسال إشعار إلى التيليجرام ======
+        // إرسال إشعار إلى التيليجرام
         const message = `
 🛍️ <b>NOUVELLE COMMANDE !</b>
 
@@ -232,11 +283,8 @@ app.post('/api/orders', async (req, res) => {
 🏠 <b>Adresse:</b> ${orderData.address}
 
 📅 <b>Date:</b> ${new Date().toLocaleString('fr-FR')}
-
-✅ <i>Commande reçue avec succès !</i>
         `;
         
-        // إرسال الإشعار
         await sendTelegramMessage(message);
         console.log('✅ Notification Telegram envoyée');
         
@@ -251,26 +299,17 @@ app.post('/api/orders', async (req, res) => {
 app.delete('/api/orders/:id', async (req, res) => {
     try {
         await Order.findByIdAndDelete(req.params.id);
-        res.json({ success: true, message: "Commande supprimée" });
+        res.json({ success: true });
     } catch (e) {
-        console.error('Erreur suppression commande:', e);
         res.status(500).json({ error: e.message });
     }
 });
 
 // مسار اختبار البوت
 app.get('/test-bot', async (req, res) => {
-    const testMessage = `
-🤖 <b>Test du Bot</b>
-✅ Le bot fonctionne correctement !
-📅 ${new Date().toLocaleString('fr-FR')}
-    `;
+    const testMessage = `🤖 <b>Test du Bot</b>\n✅ Le bot fonctionne correctement !\n📅 ${new Date().toLocaleString('fr-FR')}`;
     const result = await sendTelegramMessage(testMessage);
-    if (result) {
-        res.send('✅ Message envoyé avec succès à Telegram !');
-    } else {
-        res.status(500).send('❌ Erreur lors de l\'envoi du message');
-    }
+    res.send(result ? '✅ Message envoyé !' : '❌ Erreur');
 });
 
 // فتح الصفحات
@@ -281,6 +320,5 @@ app.get('/ryry-manage', (req, res) => res.sendFile(path.join(publicDir, 'ryry-ad
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🤖 Bot Telegram prêt !`);
-    console.log(`📱 Testez le bot: http://localhost:${PORT}/test-bot`);
+    console.log(`📱 Allez sur: http://localhost:${PORT}/fix-all-images pour réparer les images`);
 });
