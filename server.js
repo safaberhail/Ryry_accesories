@@ -2,16 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const multer = require('multer');
 const fs = require('fs');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // مهم لاستقبال الصور الكبيرة
 app.use(cors());
 
 // --- 1. إعدادات البوت ---
 const BOT_TOKEN = '8879359089:AAGElzjWJKZuyriJWJm0OkocuWxWjeZ_wMQ';
-const CHAT_ID = '6629660142';
+const CHAT_ID = '5235221577';
 
 async function sendTelegramMessage(message) {
     try {
@@ -32,47 +31,30 @@ async function sendTelegramMessage(message) {
     }
 }
 
-// --- 2. إعدادات المجلدات ورفع الصور ---
+// --- 2. خدمة الملفات الثابتة ---
 const publicDir = path.join(__dirname, 'public');
-const uploadDir = path.join(publicDir, 'uploads');
-
-// التأكد من وجود المجلدات
-if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true });
-}
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, uploadDir); },
-    filename: (req, file, cb) => { cb(null, Date.now() + '-' + file.originalname); }
-});
-
-const upload = multer({ storage: storage });
-
-// --- 3. خدمة الملفات الثابتة (مهم جداً للصور) ---
 app.use(express.static(publicDir));
-app.use('/uploads', express.static(uploadDir));
 
-// --- 4. الاتصال بـ MongoDB ---
+// --- 3. الاتصال بـ MongoDB ---
 const dbURI = "mongodb+srv://safaberhail2006_db_user:8BsDrCa7dZemCaia@cluster0.yh4nxpi.mongodb.net/ryry_store?retryWrites=true&w=majority";
 
 mongoose.connect(dbURI, { serverSelectionTimeoutMS: 5000 })
     .then(() => console.log('✅ Connected to MongoDB Atlas'))
     .catch(err => console.error('❌ Connection Error:', err.message));
 
-// --- 5. الموديلات ---
+// --- 4. الموديلات ---
 const Admin = mongoose.model('Admin', new mongoose.Schema({ 
     email: { type: String, unique: true }, 
     password: { type: String } 
 }));
 
+// موديل المنتج مع تخزين الصورة كـ Base64
 const Product = mongoose.model('Product', new mongoose.Schema({ 
     name_fr: String, 
     price: Number, 
     old_price: Number, 
-    image_url: String,
+    image_data: { type: String, default: '' }, // الصورة بصيغة Base64
+    image_mime: { type: String, default: 'image/jpeg' },
     bg_gradient: { type: String, default: '#0A4240' }
 }));
 
@@ -89,101 +71,7 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now } 
 }));
 
-// --- 6. مسار إصلاح جميع الصور (الحل السحري) ---
-app.get('/fix-all-images', async (req, res) => {
-    try {
-        const products = await Product.find();
-        let fixed = 0;
-        
-        for (const product of products) {
-            let oldPath = product.image_url;
-            let newPath = oldPath;
-            
-            if (oldPath) {
-                // الحالة 1: public/uploads/xxx
-                if (oldPath.includes('public/uploads/')) {
-                    newPath = oldPath.replace('public/uploads/', '/uploads/');
-                }
-                // الحالة 2: uploads/xxx (بدون slash)
-                else if (oldPath.startsWith('uploads/')) {
-                    newPath = '/' + oldPath;
-                }
-                // الحالة 3: xxx (اسم ملف فقط)
-                else if (!oldPath.startsWith('/uploads/') && !oldPath.startsWith('http')) {
-                    newPath = '/uploads/' + oldPath;
-                }
-                // الحالة 4: /uploads/xxx (صحيح) - لا نغيره
-                
-                // إذا تغير المسار
-                if (newPath !== oldPath) {
-                    product.image_url = newPath;
-                    await product.save();
-                    fixed++;
-                    console.log(`✅ Fixé: ${oldPath} → ${newPath}`);
-                }
-            }
-        }
-        
-        // عرض نتيجة الإصلاح مع رابط للعودة
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body { font-family: Arial; text-align: center; padding: 50px; background: #f5f5f5; }
-                    .container { background: white; padding: 40px; border-radius: 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-                    h1 { color: #0A4240; }
-                    .success { color: green; font-size: 48px; }
-                    .btn { display: inline-block; padding: 12px 30px; background: #0A4240; color: white; text-decoration: none; border-radius: 50px; margin-top: 20px; }
-                    .details { text-align: left; margin: 20px 0; padding: 20px; background: #f9f9f9; border-radius: 10px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="success">✅</div>
-                    <h1>${fixed} produits corrigés !</h1>
-                    <div class="details">
-                        <strong>Détails :</strong><br>
-                        Total produits: ${products.length}<br>
-                        Corrigés: ${fixed}<br>
-                        Non corrigés: ${products.length - fixed}
-                    </div>
-                    <a href="/" class="btn">🏠 Retour au site</a>
-                    <br><br>
-                    <a href="/fix-images-debug" class="btn" style="background: #D4A853;">🔍 Voir détails</a>
-                </div>
-            </body>
-            </html>
-        `);
-    } catch (e) {
-        res.status(500).send('Erreur: ' + e.message);
-    }
-});
-
-// مسار لعرض تفاصيل الصور (للتشخيص)
-app.get('/fix-images-debug', async (req, res) => {
-    try {
-        const products = await Product.find();
-        let html = '<h1>Détails des produits</h1><table border="1" style="border-collapse:collapse;width:100%">';
-        html += '<tr><th>Nom</th><th>Image URL</th><th>Statut</th></tr>';
-        
-        for (const p of products) {
-            const imgPath = p.image_url || 'Aucune';
-            const exists = imgPath && imgPath !== 'Aucune' ? '✅' : '❌';
-            html += `<tr>
-                <td>${p.name_fr}</td>
-                <td>${imgPath}</td>
-                <td>${exists}</td>
-            </tr>`;
-        }
-        html += '</table><br><a href="/">Retour</a>';
-        res.send(html);
-    } catch (e) {
-        res.status(500).send('Erreur: ' + e.message);
-    }
-});
-
-// --- 7. الروابط (Routes) ---
+// --- 5. الروابط (Routes) ---
 
 // تفعيل حساب الأدمن
 app.get('/setup', async (req, res) => {
@@ -202,34 +90,52 @@ app.post('/api/admin/login', async (req, res) => {
     else res.status(401).json({ success: false });
 });
 
-// جلب المنتجات
+// جلب المنتجات (مع إرسال الصورة كـ Base64)
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find();
-        res.json(products);
+        // تحويل الصورة إلى URL بيانات
+        const productsWithImages = products.map(p => {
+            const pObj = p.toObject();
+            if (pObj.image_data) {
+                pObj.image_url = `data:${pObj.image_mime || 'image/jpeg'};base64,${pObj.image_data}`;
+            } else {
+                pObj.image_url = '';
+            }
+            delete pObj.image_data;
+            delete pObj.image_mime;
+            return pObj;
+        });
+        res.json(productsWithImages);
     } catch (e) { 
         console.error('Erreur fetch products:', e);
         res.status(500).json({ error: e.message }); 
     }
 });
 
-// إضافة منتج (مع رفع الصورة)
-app.post('/api/products', upload.single('image'), async (req, res) => {
+// إضافة منتج (مع استقبال الصورة كـ Base64)
+app.post('/api/products', async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'Aucune image téléchargée' });
+        const { name_fr, price, old_price, image_data, image_mime, bg_gradient } = req.body;
+        
+        // التحقق من وجود الصورة
+        if (!image_data) {
+            return res.status(400).json({ error: 'Image requise' });
         }
         
-        // مسار الصورة الصحيح
-        const imagePath = '/uploads/' + req.file.filename;
-        console.log('✅ Image sauvegardée:', imagePath);
+        // إزالة البادئة إذا وجدت
+        let cleanImageData = image_data;
+        if (image_data.includes('base64,')) {
+            cleanImageData = image_data.split('base64,')[1];
+        }
         
         const newP = new Product({
-            name_fr: req.body.name_fr,
-            price: Number(req.body.price),
-            old_price: req.body.old_price ? Number(req.body.old_price) : null,
-            image_url: imagePath,
-            bg_gradient: req.body.bg_gradient || '#0A4240'
+            name_fr: name_fr,
+            price: Number(price),
+            old_price: old_price ? Number(old_price) : null,
+            image_data: cleanImageData,
+            image_mime: image_mime || 'image/jpeg',
+            bg_gradient: bg_gradient || '#0A4240'
         });
         await newP.save();
         res.json({ success: true, product: newP });
@@ -312,13 +218,98 @@ app.get('/test-bot', async (req, res) => {
     res.send(result ? '✅ Message envoyé !' : '❌ Erreur');
 });
 
+// مسار الحصول على Chat ID
+app.get('/get-chat-id', async (req, res) => {
+    try {
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        let html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+                    .container { background: white; padding: 30px; border-radius: 15px; max-width: 800px; margin: 0 auto; }
+                    .chat-id { background: #0A4240; color: #D4A853; padding: 15px; border-radius: 10px; font-size: 24px; text-align: center; margin: 20px 0; }
+                    .instruction { background: #fff3cd; padding: 15px; border-radius: 10px; border-left: 5px solid #ffc107; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+                    th { background: #0A4240; color: white; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🔍 Trouver le Chat ID</h1>
+                    <div class="instruction">
+                        <strong>📌 Instructions :</strong><br>
+                        1. Demandez au propriétaire du bot d'envoyer un message à <strong>@ryry_accessory_bot</strong><br>
+                        2. Rafraîchissez cette page après l'envoi du message<br>
+                        3. Le Chat ID apparaîtra ci-dessous
+                    </div>
+        `;
+        
+        if (data.ok && data.result.length > 0) {
+            const lastUpdate = data.result[data.result.length - 1];
+            const chatId = lastUpdate.message?.chat?.id || lastUpdate.callback_query?.message?.chat?.id;
+            const username = lastUpdate.message?.chat?.username || 'Inconnu';
+            const firstName = lastUpdate.message?.chat?.first_name || '';
+            const lastName = lastUpdate.message?.chat?.last_name || '';
+            
+            html += `
+                <div class="chat-id">
+                    🆔 Chat ID: <strong>${chatId}</strong>
+                </div>
+                <p><strong>👤 Utilisateur:</strong> ${firstName} ${lastName} (@${username})</p>
+                <p><strong>📝 Dernier message:</strong> ${lastUpdate.message?.text || 'N/A'}</p>
+                <p style="color: green; font-weight: bold;">✅ Copiez ce Chat ID et remplacez-le dans server.js</p>
+                <hr>
+                <h3>📋 Tous les messages récents :</h3>
+                <table>
+                    <tr><th>ID</th><th>Nom</th><th>Username</th><th>Message</th></tr>
+            `;
+            
+            data.result.forEach(update => {
+                const msg = update.message;
+                if (msg) {
+                    const cid = msg.chat.id;
+                    const name = `${msg.chat.first_name || ''} ${msg.chat.last_name || ''}`.trim();
+                    const username = msg.chat.username || 'N/A';
+                    const text = msg.text || '(Média)';
+                    html += `<tr><td>${cid}</td><td>${name}</td><td>@${username}</td><td>${text}</td></tr>`;
+                }
+            });
+            
+            html += `</table>`;
+        } else {
+            html += `
+                <div style="background: #f8d7da; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #dc3545;">
+                    <strong>⚠️ Aucun message trouvé.</strong><br>
+                    Demandez au propriétaire d'envoyer un message au bot, puis rafraîchissez cette page.
+                </div>
+            `;
+        }
+        
+        html += `
+                </div>
+            </body>
+            </html>
+        `;
+        
+        res.send(html);
+    } catch (e) {
+        res.status(500).send('Erreur: ' + e.message);
+    }
+});
+
 // فتح الصفحات
 app.get('/login', (req, res) => res.sendFile(path.join(publicDir, 'login.html')));
 app.get('/ryry-manage', (req, res) => res.sendFile(path.join(publicDir, 'ryry-admin-secret.html')));
 
-// --- 8. تشغيل السيرفر ---
+// --- 6. تشغيل السيرفر ---
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Allez sur: http://localhost:${PORT}/fix-all-images pour réparer les images`);
+    console.log(`📱 Allez sur: http://localhost:${PORT}/ryry-manage pour ajouter des produits`);
 });

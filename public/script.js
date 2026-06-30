@@ -170,7 +170,7 @@ function calculateTotal() {
     document.getElementById('total-price').innerText = total + " DA";
 }
 
-// 6. جلب المنتجات وعرضها (نسخة محسنة)
+// 6. جلب المنتجات وعرضها
 async function fetchProducts() {
     try {
         const res = await fetch('/api/products');
@@ -178,30 +178,12 @@ async function fetchProducts() {
         const list = document.getElementById('product-list');
         if(!list) return;
 
+        // صورة افتراضية
+        const defaultImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%230A4240'/%3E%3Ctext x='150' y='140' font-family='Arial' font-size='24' fill='%23D4A853' text-anchor='middle' dy='.3em' font-weight='bold'%3ERyry's%3C/text%3E%3Ctext x='150' y='175' font-family='Arial' font-size='18' fill='%23D4A853' text-anchor='middle'%3EAccessory%3C/text%3E%3Ctext x='150' y='210' font-family='Arial' font-size='14' fill='%23E5C27D' text-anchor='middle'%3E💎 Luxe %26 Acier%3C/text%3E%3C/svg%3E";
+
         list.innerHTML = products.map(p => {
-            // صورة افتراضية جميلة
-            const defaultImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%230A4240'/%3E%3Ctext x='150' y='130' font-family='Arial' font-size='24' fill='%23D4A853' text-anchor='middle' dy='.3em' font-weight='bold'%3ERyry's%3C/text%3E%3Ctext x='150' y='170' font-family='Arial' font-size='18' fill='%23D4A853' text-anchor='middle'%3EAccessory%3C/text%3E%3Ctext x='150' y='210' font-family='Arial' font-size='14' fill='%23E5C27D' text-anchor='middle'%3E💎 Luxe %26 Acier%3C/text%3E%3C/svg%3E";
-            
-            // بناء مسار الصورة بشكل صحيح
-            let imgPath = defaultImg;
-            
-            if (p.image_url) {
-                let cleanPath = p.image_url;
-                
-                // إزالة public/ إذا وجدت
-                cleanPath = cleanPath.replace(/^public\//, '');
-                
-                // إذا كان المسار يبدأ بـ uploads/ (بدون slash)
-                if (cleanPath.startsWith('uploads/')) {
-                    cleanPath = '/' + cleanPath;
-                }
-                // إذا كان المسار لا يبدأ بـ /uploads/ وليس رابطاً كاملاً
-                else if (!cleanPath.startsWith('/uploads/') && !cleanPath.startsWith('http')) {
-                    cleanPath = '/uploads/' + cleanPath;
-                }
-                
-                imgPath = cleanPath;
-            }
+            // الصورة تأتي من Base64 (image_url)
+            const imgSrc = p.image_url || defaultImg;
 
             let oldPriceHtml = '';
             if (p.old_price && p.old_price > 0) {
@@ -211,7 +193,7 @@ async function fetchProducts() {
             return `
             <div class="product-card">
                 <div class="product-img-wrapper" style="background:${p.bg_gradient || '#0A4240'}">
-                    <img src="${imgPath}" 
+                    <img src="${imgSrc}" 
                          alt="${p.name_fr}" 
                          onerror="this.src='${defaultImg}'"
                          loading="lazy">
