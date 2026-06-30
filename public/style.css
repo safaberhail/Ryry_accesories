@@ -65,11 +65,49 @@ h1, h2 { font-family: 'Playfair Display', serif; }
 .form-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; border-radius: 10px; }
 
 /* Mobile Query */
+/* 📱 تصحيح مربعات الإحصائيات في الهاتف 📱 */
 @media (max-width: 768px) {
-    .hero { text-align: center; padding-top: 100px; min-height: auto; padding-bottom: 40px; }
-    .hero h1 { font-size: 2.8rem; }
-    .hero-stats-desktop, .floating-desktop, .pc-nav-btn { display: none; }
-    .hero-stats-mobile { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 30px; }
-    .stat-box { border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 15px; }
-    .delivery-card-mobile { display: flex; background: white; padding: 15px; border-radius: 20px; margin-top: 30px; align-items: center; gap: 15px; text-align: left; }
+    .hero-stats-mobile { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); /* تقسيم الشاشة لـ 3 أعمدة */
+        gap: 8px; /* تقليل الفراغ بين المربعات لتوفير مساحة */
+        margin-top: 30px; 
+        width: 100%;
+    }
+
+    .stat-box { 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        padding: 12px 4px; /* تقليل المسافة الداخلية لكي لا يميل النص */
+        border-radius: 15px; 
+        background: rgba(255, 255, 255, 0.03);
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* توسيط أفقي */
+        justify-content: center; /* توسيط عمودي */
+        min-height: 75px; /* توحيد الطول لجميع المربعات */
+    }
+
+    .stat-box span { 
+        display: block; 
+        font-size: 1rem; /* تصغير الخط قليلاً ليتناسب مع العرض */
+        font-weight: bold; 
+        color: var(--gold); 
+        margin-bottom: 4px;
+        line-height: 1;
+    }
+
+    .stat-box small { 
+        display: block;
+        font-size: 0.55rem; /* تصغير الكلمات التوضيحية لكي لا تنكسر */
+        color: rgba(255, 255, 255, 0.8); 
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap; /* منع الكلمة من الانقسام لسطرين */
+    }
+}
+
+/* تعديل إضافي للهواتف الصغيرة جداً (مثل آيفون SE) */
+@media (max-width: 375px) {
+    .stat-box span { font-size: 0.9rem; }
+    .stat-box small { font-size: 0.5rem; }
 }
