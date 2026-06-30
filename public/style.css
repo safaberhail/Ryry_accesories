@@ -454,6 +454,9 @@ a {
     border-radius: var(--radius-md);
     overflow: hidden;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .product-img-wrapper img {

@@ -179,13 +179,26 @@ async function fetchProducts() {
         if(!list) return;
 
         list.innerHTML = products.map(p => {
-            let imgPath = p.image_url ? p.image_url : '';
+            // بناء مسار الصورة بشكل صحيح
+            let imgPath = '';
             
-            if (imgPath && !imgPath.startsWith('/uploads/') && !imgPath.startsWith('http')) {
-                imgPath = '/uploads/' + imgPath;
+            if (p.image_url) {
+                // إذا كان المسار يبدأ بـ /uploads/ نستخدمه كما هو
+                if (p.image_url.startsWith('/uploads/')) {
+                    imgPath = p.image_url;
+                } 
+                // إذا كان يبدأ بـ uploads/ بدون slash
+                else if (p.image_url.startsWith('uploads/')) {
+                    imgPath = '/' + p.image_url;
+                }
+                // إذا كان مجرد اسم ملف
+                else {
+                    imgPath = '/uploads/' + p.image_url;
+                }
             }
             
-            const defaultImg = "https://via.placeholder.com/300/0A4240/D4A853?text=Ryry+Accessory";
+            // صورة افتراضية في حالة عدم وجود صورة أو فشل التحميل
+            const defaultImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%230A4240'/%3E%3Ctext x='150' y='140' font-family='Arial' font-size='22' fill='%23D4A853' text-anchor='middle' dy='.3em' font-weight='bold'%3ERyry's%3C/text%3E%3Ctext x='150' y='175' font-family='Arial' font-size='16' fill='%23D4A853' text-anchor='middle'%3EAccessory%3C/text%3E%3C/svg%3E";
 
             let oldPriceHtml = '';
             if (p.old_price && p.old_price > 0) {
