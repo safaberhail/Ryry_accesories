@@ -205,23 +205,29 @@ async function fetchProducts() {
         const list = document.getElementById('product-list');
         if(!list) return;
 
-        list.innerHTML = products.map(p => `
-            <div class="product-card">
-                <div class="product-img-wrapper">
-                    <img src="${p.image_url}" onerror="this.src='https://via.placeholder.com/300'">
-                </div>
-                <div class="product-info">
-                    <h3>${p.name_fr}</h3>
-                    <div class="price-container">
-                        <span class="current-price">${p.price} DA</span>
-                        ${p.old_price ? `<span class="old-price">${p.old_price} DA</span>` : ''}
-                    </div>
-                    <button class="btn-main" style="width:100%;" onclick="openOrder('${p.name_fr}', ${p.price})">
-                        Commander 
-                    </button>
-                </div>
+list.innerHTML = products.map(p => {
+    // نضع رابط صورة افتراضية في حال ضاعت الصورة الأصلية من السيرفر
+    const defaultImg = "https://via.placeholder.com/300/0A4240/D4A853?text=Ryry+Accessory";
+    const imgPath = p.image_url ? p.image_url : defaultImg;
+
+    return `
+    <div class="product-card">
+        <div class="product-img-wrapper" style="background:${p.bg_gradient || '#0A4240'}">
+            <img src="${imgPath}" alt="${p.name_fr}" onerror="this.src='${defaultImg}'">
+        </div>
+        <div class="product-info">
+            <h3>${p.name_fr}</h3>
+            <div class="price-container">
+                <span class="current-price">${p.price} DA</span>
+                ${p.old_price ? `<span class="old-price">${p.old_price} DA</span>` : ''}
             </div>
-        `).join('');
+            <button class="btn-main" style="width:100%;" onclick="openOrder('${p.name_fr}', ${p.price})">
+                Commander
+            </button>
+        </div>
+    </div>
+    `;
+}).join('');
     } catch (e) { console.error(e); }
 }
 

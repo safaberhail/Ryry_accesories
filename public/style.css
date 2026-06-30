@@ -73,50 +73,98 @@ h1, h2, h3 { font-family: 'Playfair Display', serif; }
 .summary-card { background: #f4f8f7; border: 1px solid #e0eceb; border-radius: 20px; padding: 15px; margin-bottom: 20px; }
 
 /* 📱 📱 📱 هـــــام جـــــداً: تـنـسـيـق الـهـاتـف 📱 📱 📱 */
-@media (max-width: 768px) {
-    .container { padding: 0 20px; }
-    
-    .hero { 
-        text-align: center; 
-        padding-top: 120px; 
-        min-height: auto; 
-    }
-    
-    .hero-content { margin: 0 auto; }
-    
-    .hero p { margin: 0 auto 30px; }
+/* ─── تنسيقات الهاتف المحدثة (Mobile First) ─── */
 
-    /* جعل الإحصائيات تحت بعضها أو تصغيرها لكي لا تتداخل */
-    .hero-stats { 
-        justify-content: center; 
-        gap: 20px; 
-        flex-wrap: wrap; /* يسمح للعناصر بالنزول لسطر جديد */
-    }
-    
-    .stat-item span { font-size: 1.5rem; }
-
-    /* منع تداخل المربع العائم في الهاتف */
-    .floating { 
-        position: relative; /* يتحول من عائم إلى عنصر عادي في الأسفل */
-        bottom: 0; 
-        right: 0; 
-        margin: 40px auto 0; 
-        width: fit-content; 
-        animation: none; /* إيقاف الحركة لراحة العين في الهاتف */
-    }
-
-    .nav-logo { font-size: 1.1rem; }
-    .btn-main { padding: 12px 25px; font-size: 0.9rem; }
-
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* تصغير عرض البطاقات */
-        gap: 20px;
-    }
+/* أيقونة المنيو للهاتف */
+.mobile-menu-icon {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+.mobile-menu-icon span {
+    width: 25px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
 }
 
-@media (max-width: 480px) {
-    .hero h1 { font-size: 2.2rem; }
-    .hero-stats { gap: 15px; }
-    .stat-item span { font-size: 1.3rem; }
-    .summary-card { padding: 12px; }
+@media (max-width: 768px) {
+    .pc-only-btn { display: none; } /* إخفاء زر الكوموند العلوي في الهاتف */
+    .mobile-menu-icon { display: flex; } /* إظهار أيقونة المنيو */
+
+    .hero {
+        text-align: center;
+        padding-top: 100px;
+        min-height: auto;
+    }
+
+    .hero-content { margin: 0 auto; }
+
+    .hero h1 {
+        font-size: 2.8rem; /* تكبير الخط مثل الصورة */
+        margin-bottom: 20px;
+    }
+
+    .hero p {
+        font-size: 1rem;
+        max-width: 90%;
+        margin: 0 auto 30px;
+    }
+
+    .shop-btn {
+        width: 100%;
+        padding: 20px;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    /* مربع التوصيل الأبيض المنظم */
+    .delivery-card-mobile {
+        background: #FDF8F5; /* لون فاتح جداً قريب للأبيض */
+        padding: 15px 25px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        margin-bottom: 40px;
+        text-align: left;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    /* إخفاء المربع العائم القديم في الهاتف */
+    .floating { display: none; }
+
+    /* الإحصائيات بشكل صناديق (3 في السطر) */
+    .hero-stats-boxes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .stat-box {
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 15px 5px;
+        border-radius: 15px;
+        background: rgba(255,255,255,0.03);
+    }
+
+    .stat-box span {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--gold);
+        margin-bottom: 5px;
+    }
+
+    .stat-box small {
+        display: block;
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.7);
+        letter-spacing: 1px;
+    }
 }
