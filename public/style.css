@@ -431,6 +431,7 @@ a {
     background: var(--ivory);
     border-radius: var(--radius-md);
     overflow: hidden;
+    position: relative;
 }
 
 .product-img-wrapper img {
@@ -444,21 +445,44 @@ a {
     transform: scale(1.06);
 }
 
-.product-card h3,
-.product-card .product-name {
+.product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
     font-family: 'Playfair Display', serif;
     font-size: 1.15rem;
     color: var(--primary);
     margin-top: 18px;
+    margin-bottom: 6px;
 }
 
-.product-card .product-price,
-.product-card p {
+/* ====== Styles des prix ====== */
+.price-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 6px 0 4px;
+    flex-wrap: wrap;
+}
+
+.current-price {
     color: var(--gold);
     font-weight: 700;
-    font-size: 1.1rem;
-    margin-top: 6px;
+    font-size: 1.2rem;
 }
+
+.old-price {
+    color: #999;
+    font-size: 0.95rem;
+    text-decoration: line-through;
+    font-weight: 500;
+}
+
+/* ====== Fin styles des prix ====== */
 
 .product-card .btn-main {
     width: 100%;
@@ -842,14 +866,17 @@ textarea.form-input {
         border-radius: 20px;
     }
 
-    .product-card h3,
-    .product-card .product-name {
+    .product-name {
         font-size: 1rem;
         margin-top: 14px;
     }
 
-    .product-card .product-price {
+    .current-price {
         font-size: 1rem;
+    }
+
+    .old-price {
+        font-size: 0.85rem;
     }
 
     .product-card .btn-main {
@@ -897,14 +924,17 @@ textarea.form-input {
         border-radius: 16px;
     }
 
-    .product-card h3,
-    .product-card .product-name {
+    .product-name {
         font-size: 0.9rem;
         margin-top: 10px;
     }
 
-    .product-card .product-price {
+    .current-price {
         font-size: 0.9rem;
+    }
+
+    .old-price {
+        font-size: 0.75rem;
     }
 
     .product-card .btn-main {

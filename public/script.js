@@ -64,8 +64,7 @@ const algeriaCities = {
 let currentQty = 1;
 let currentUnitPrice = 0;
 
-// أسعار التوصيل (سيتم تحديثها لاحقاً بقائمة شركتك)
-// قاعدة بيانات أسعار التوصيل لشركة DHD Livraison (المنزل / المكتب)
+// أسعار التوصيل
 const deliveryFees = {
     "01": { home: 1100, office: 600 },
     "02": { home: 700, office: 400 },
@@ -116,49 +115,18 @@ const deliveryFees = {
     "47": { home: 900, office: 500 },
     "48": { home: 700, office: 400 },
     "49": { home: 1300, office: 600 },
-    "50": { home: 1300, office: 600 }, // Bordj Badji Mokhtar
+    "50": { home: 1300, office: 600 },
     "51": { home: 900, office: 500 },
-    "52": { home: 1300, office: 0 },   // Beni Abbes (لا يوجد مكتب)
+    "52": { home: 1300, office: 0 },
     "53": { home: 1300, office: 600 },
-    "54": { home: 1300, office: 600 }, // In Guezzam
+    "54": { home: 1300, office: 600 },
     "55": { home: 900, office: 500 },
-    "56": { home: 1300, office: 600 }, // Djanet
-    "57": { home: 900, office: 0 },   // El M'Ghair (لا يوجد مكتب)
+    "56": { home: 1300, office: 600 },
+    "57": { home: 900, office: 0 },
     "58": { home: 1000, office: 500 }
 };
 
-// دالة حساب المجموع المحدثة للتعامل مع المكاتب غير المتوفرة
-function calculateTotal() {
-    const wilayaId = document.getElementById('cust-wilaya').value;
-    // جلب نوع التوصيل (منزل أو مكتب)
-    const deliveryType = document.querySelector('input[name="del-type"]:checked').value;
-    
-    let deliveryCost = 0;
-
-    // 1. حساب سعر التوصيل
-    if (wilayaId) {
-        const fees = deliveryFees[wilayaId] || deliveryFees["default"];
-        deliveryCost = fees[deliveryType];
-        
-        // تنبيه في حالة عدم توفر مكتب في تلك الولاية (مثل بني عباس)
-        if (deliveryCost === 0) {
-            alert("Désolé, la livraison en bureau n'est pas disponible pour هذه الولاية. Veuillez choisir 'À domicile'.");
-            document.querySelector('input[value="home"]').checked = true;
-            deliveryCost = fees.home;
-        }
-        document.getElementById('delivery-price').innerText = deliveryCost + " DA";
-    } else {
-        document.getElementById('delivery-price').innerText = "Choisir Wilaya";
-    }
-
-    // 2. الحساب المنطقي: (سعر المنتج × الكمية) + سعر التوصيل
-    const subtotal = currentUnitPrice * currentQty;
-    const total = subtotal + deliveryCost;
-
-    // 3. تحديث الواجهة
-    document.getElementById('total-price').innerText = total + " DA";
-}
-// 3. دالة تحديث البلديات
+// دالة تحديث البلديات
 function updateCommunes() {
     const wilayaId = document.getElementById('cust-wilaya').value;
     const communeSelect = document.getElementById('cust-commune');
@@ -175,10 +143,9 @@ function updateCommunes() {
     }
 }
 
-// 4. دالة حساب المجموع
+// دالة حساب المجموع
 function calculateTotal() {
     const wilayaId = document.getElementById('cust-wilaya').value;
-    // جلب نوع التوصيل المختار (راديو)
     const deliveryType = document.querySelector('input[name="del-type"]:checked').value;
     
     let deliveryCost = 0;
@@ -186,18 +153,24 @@ function calculateTotal() {
     if (wilayaId) {
         const fees = deliveryFees[wilayaId] || deliveryFees["default"];
         deliveryCost = fees[deliveryType];
+        
+        if (deliveryCost === 0) {
+            alert("Désolé, la livraison en bureau n'est pas disponible pour cette wilaya. Veuillez choisir 'À domicile'.");
+            document.querySelector('input[value="home"]').checked = true;
+            deliveryCost = fees.home;
+        }
         document.getElementById('delivery-price').innerText = deliveryCost + " DA";
     } else {
         document.getElementById('delivery-price').innerText = "Choisir Wilaya";
     }
 
-    const total = (currentUnitPrice * currentQty) + deliveryCost;
+    const subtotal = currentUnitPrice * currentQty;
+    const total = subtotal + deliveryCost;
+
     document.getElementById('total-price').innerText = total + " DA";
 }
 
-// 5. جلب السلع وعرضها
-// ... (قاعدة بيانات algeriaCities و deliveryFees تبقى كما هي) ...
-
+// جلب المنتجات وعرضها
 async function fetchProducts() {
     try {
         const res = await fetch('/api/products');
@@ -205,35 +178,47 @@ async function fetchProducts() {
         const list = document.getElementById('product-list');
         if(!list) return;
 
-list.innerHTML = products.map(p => {
-    // نضع رابط صورة افتراضية في حال ضاعت الصورة الأصلية من السيرفر
-    const defaultImg = "https://via.placeholder.com/300/0A4240/D4A853?text=Ryry+Accessory";
-    const imgPath = p.image_url ? p.image_url : defaultImg;
+        list.innerHTML = products.map(p => {
+            // رابط الصورة
+            let imgPath = p.image_url ? p.image_url : '';
+            
+            // إذا كان الرابط لا يبدأ بـ /uploads/ نضيفه
+            if (imgPath && !imgPath.startsWith('/uploads/') && !imgPath.startsWith('http')) {
+                imgPath = '/uploads/' + imgPath;
+            }
+            
+            const defaultImg = "https://via.placeholder.com/300/0A4240/D4A853?text=Ryry+Accessory";
 
-    return `
-    <div class="product-card">
-        <div class="product-img-wrapper" style="background:${p.bg_gradient || '#0A4240'}">
-            <img src="${imgPath}" alt="${p.name_fr}" onerror="this.src='${defaultImg}'">
-        </div>
-        <div class="product-info">
-            <h3>${p.name_fr}</h3>
-            <div class="price-container">
-                <span class="current-price">${p.price} DA</span>
-                ${p.old_price ? `<span class="old-price">${p.old_price} DA</span>` : ''}
+            // عرض السعر القديم مشطوب إذا كان موجوداً
+            let oldPriceHtml = '';
+            if (p.old_price && p.old_price > 0) {
+                oldPriceHtml = `<span class="old-price">${p.old_price} DA</span>`;
+            }
+
+            return `
+            <div class="product-card">
+                <div class="product-img-wrapper" style="background:${p.bg_gradient || '#0A4240'}">
+                    <img src="${imgPath || defaultImg}" alt="${p.name_fr}" onerror="this.src='${defaultImg}'">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${p.name_fr}</h3>
+                    <div class="price-container">
+                        <span class="current-price">${p.price} DA</span>
+                        ${oldPriceHtml}
+                    </div>
+                    <button class="btn-main" onclick="openOrder('${p.name_fr}', ${p.price})">
+                        Commander
+                    </button>
+                </div>
             </div>
-            <button class="btn-main" style="width:100%;" onclick="openOrder('${p.name_fr}', ${p.price})">
-                Commander
-            </button>
-        </div>
-    </div>
-    `;
-}).join('');
-    } catch (e) { console.error(e); }
+            `;
+        }).join('');
+    } catch (e) { 
+        console.error('Erreur fetchProducts:', e); 
+    }
 }
 
-// دالة فتح الطلب وتمرير السعر
-// ... قاعدة البيانات السابقة كما هي ...
-
+// دالة فتح الطلب
 function openOrder(pName, price) {
     currentUnitPrice = price;
     currentQty = 1;
@@ -242,7 +227,6 @@ function openOrder(pName, price) {
     document.getElementById('unit-price').innerText = price + " DA";
     document.getElementById('display-qty').innerText = currentQty;
     
-    // استخدام classList لإظهار المودال بدلاً من style.display مباشرة
     const modal = document.getElementById('order-modal');
     modal.classList.add('active');
     
@@ -253,23 +237,16 @@ function closeModal() {
     const modal = document.getElementById('order-modal');
     modal.classList.remove('active');
 }
-// ... (دوال changeQty و calculateTotal وإرسال الطلب كما هي) ...
-fetchProducts();
-function closeModal() {
-    document.getElementById('order-modal').style.display = 'none';
-}
 
-// 7. التحكم في الكمية (+/-)
+// التحكم في الكمية
 function changeQty(val) {
     currentQty += val;
-    if (currentQty < 1) currentQty = 1; // منع النزول تحت 1
+    if (currentQty < 1) currentQty = 1;
     document.getElementById('display-qty').innerText = currentQty;
-    
-    // إعادة الحساب فوراً عند تغيير الكمية
     calculateTotal();
 }
 
-// 8. إرسال الطلب
+// إرسال الطلب
 document.getElementById('order-form').onsubmit = async (e) => {
     e.preventDefault();
     
@@ -297,6 +274,8 @@ document.getElementById('order-form').onsubmit = async (e) => {
         alert("✅ Merci! Votre commande a été reçue.");
         closeModal();
         e.target.reset();
+    } else {
+        alert("❌ Erreur lors de l'envoi de la commande.");
     }
 };
 
