@@ -87,6 +87,17 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // استقبال طلبات الزبائن
+// --- روابط الطلبات (Orders API) ---
+
+// جلب كل الطلبات
+app.get('/api/orders', async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ date: -1 });
+        res.json(orders);
+    } catch (e) { res.status(500).json(e); }
+});
+
+// استقبال طلب جديد
 app.post('/api/orders', async (req, res) => {
     try {
         const newOrder = new Order(req.body);
@@ -95,14 +106,15 @@ app.post('/api/orders', async (req, res) => {
     } catch (e) { res.status(500).json(e); }
 });
 
-// جلب الطلبات للمدير
-app.get('/api/orders', async (req, res) => {
+// 🗑️ حـذف طـلب (هذا هو الكود الذي قد يكون ناقصاً)
+app.delete('/api/orders/:id', async (req, res) => {
     try {
-        const orders = await Order.find().sort({ date: -1 });
-        res.json(orders);
-    } catch (e) { res.status(500).json(e); }
+        await Order.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: "Commande supprimée" });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
-
 // فتح الصفحات
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/ryry-manage', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ryry-admin-secret.html')));
