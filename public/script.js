@@ -179,17 +179,14 @@ async function fetchProducts() {
         if(!list) return;
 
         list.innerHTML = products.map(p => {
-            // رابط الصورة
             let imgPath = p.image_url ? p.image_url : '';
             
-            // إذا كان الرابط لا يبدأ بـ /uploads/ نضيفه
             if (imgPath && !imgPath.startsWith('/uploads/') && !imgPath.startsWith('http')) {
                 imgPath = '/uploads/' + imgPath;
             }
             
             const defaultImg = "https://via.placeholder.com/300/0A4240/D4A853?text=Ryry+Accessory";
 
-            // عرض السعر القديم مشطوب إذا كان موجوداً
             let oldPriceHtml = '';
             if (p.old_price && p.old_price > 0) {
                 oldPriceHtml = `<span class="old-price">${p.old_price} DA</span>`;

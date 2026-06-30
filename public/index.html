@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ryry's Accessory | Luxe & Acier</title>
-    <!-- v=3.1 Pour forcer la mise à jour du cache -->
-    <link rel="stylesheet" href="style.css?v=3.1">
+    <!-- v=3.2 Pour forcer la mise à jour du cache -->
+    <link rel="stylesheet" href="style.css?v=3.2">
 </head>
 <body>
 
@@ -15,7 +15,11 @@
                 <a href="/" class="nav-logo">Ryry's <span>Accessory</span></a>
                 <a href="/login" class="admin-hidden-link">الإدارة</a>
             </div>
-            <button class="btn-main pc-nav-btn" onclick="document.getElementById('shop').scrollIntoView()">Commander</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn-main pc-nav-btn" onclick="document.getElementById('shop').scrollIntoView()">Commander</button>
+                <!-- زر الإدارة للهاتف فقط -->
+                <a href="/login" class="admin-mobile-btn" title="Admin">⚙️</a>
+            </div>
         </div>
     </nav>
 
@@ -137,6 +141,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=3.1"></script>
+    <script src="script.js?v=3.2"></script>
 </body>
 </html>

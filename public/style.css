@@ -190,6 +190,28 @@ a {
     font-size: 0.85rem;
 }
 
+/* ====== زر الإدارة للهاتف ====== */
+.admin-mobile-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(212, 168, 83, 0.12);
+    border: 1px solid rgba(212, 168, 83, 0.25);
+    color: var(--gold);
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.admin-mobile-btn:hover {
+    background: rgba(212, 168, 83, 0.25);
+    transform: scale(1.05);
+}
+
 /* ============ Hero ============ */
 .hero {
     min-height: 90vh;
@@ -737,6 +759,17 @@ textarea.form-input {
         display: none;
     }
 
+    /* ====== إظهار زر الإدارة للهاتف ====== */
+    .admin-mobile-btn {
+        display: inline-flex !important;
+    }
+
+    /* إخفاء النص القديم للإدارة في الهاتف */
+    .admin-hidden-link {
+        display: none !important;
+    }
+    /* ====== نهاية تعديل زر الإدارة ====== */
+
     .hero {
         text-align: center;
         padding-top: 110px;
@@ -842,10 +875,6 @@ textarea.form-input {
 
     .nav-logo {
         font-size: 1.2rem;
-    }
-
-    .admin-hidden-link {
-        display: none;
     }
 
     .section {
