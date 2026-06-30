@@ -11,7 +11,7 @@ app.use(cors());
 
 // --- 1. إعدادات البوت ---
 const BOT_TOKEN = '8879359089:AAGElzjWJKZuyriJWJm0OkocuWxWjeZ_wMQ';
-const CHAT_ID = '5235221577';
+const CHAT_ID = '6629660142';
 
 async function sendTelegramMessage(message) {
     try {
