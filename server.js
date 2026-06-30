@@ -9,11 +9,41 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// --- 1. إعدادات المجلدات ورفع الصور ---
+// --- 1. إعدادات البوت ---
+const BOT_TOKEN = '8879359089:AAGElzjWJKZuyriJWJm0OkocuWxWjeZ_wMQ';
+const CHAT_ID = '5235221577'; // معرف صاحب المتجر
+
+// دالة إرسال رسالة إلى التيليجرام
+async function sendTelegramMessage(message) {
+    try {
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.text();
+            console.error('Erreur Telegram:', error);
+        }
+        return response.ok;
+    } catch (error) {
+        console.error('Erreur envoi Telegram:', error);
+        return false;
+    }
+}
+
+// --- 2. إعدادات المجلدات ورفع الصور ---
 const publicDir = path.join(__dirname, 'public');
 const uploadDir = path.join(publicDir, 'uploads');
 
-// التأكد من وجود المجلدات
 if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
 }
@@ -28,18 +58,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// --- 2. خدمة الملفات الثابتة (مهم جداً للصور) ---
+// --- 3. خدمة الملفات الثابتة ---
 app.use(express.static(publicDir));
 app.use('/uploads', express.static(uploadDir));
 
-// --- 3. الاتصال بـ MongoDB Atlas ---
+// --- 4. الاتصال بـ MongoDB Atlas ---
 const dbURI = "mongodb+srv://safaberhail2006_db_user:8BsDrCa7dZemCaia@cluster0.yh4nxpi.mongodb.net/ryry_store?retryWrites=true&w=majority";
 
 mongoose.connect(dbURI, { serverSelectionTimeoutMS: 5000 })
     .then(() => console.log('✅ Connected to MongoDB Atlas'))
     .catch(err => console.error('❌ Connection Error:', err.message));
 
-// --- 4. الموديلات (Models) ---
+// --- 5. الموديلات (Models) ---
 const Admin = mongoose.model('Admin', new mongoose.Schema({ 
     email: { type: String, unique: true }, 
     password: { type: String } 
@@ -66,7 +96,7 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now } 
 }));
 
-// --- 5. مسار إصلاح الصور (تشغيله مرة واحدة) ---
+// --- 6. مسار إصلاح الصور ---
 app.get('/fix-images', async (req, res) => {
     try {
         const products = await Product.find();
@@ -74,24 +104,18 @@ app.get('/fix-images', async (req, res) => {
         
         for (const product of products) {
             let newPath = product.image_url;
-            
             if (newPath) {
-                // إزالة public/ من المسار
                 if (newPath.includes('public/uploads/')) {
                     newPath = newPath.replace('public/uploads/', '/uploads/');
                     product.image_url = newPath;
                     await product.save();
                     fixed++;
-                }
-                // إضافة / في البداية إذا كان المسار يبدأ بـ uploads/
-                else if (newPath.startsWith('uploads/')) {
+                } else if (newPath.startsWith('uploads/')) {
                     newPath = '/' + newPath;
                     product.image_url = newPath;
                     await product.save();
                     fixed++;
-                }
-                // إذا كان المسار لا يبدأ بـ /uploads/ وليس رابطاً كاملاً
-                else if (!newPath.startsWith('/uploads/') && !newPath.startsWith('http')) {
+                } else if (!newPath.startsWith('/uploads/') && !newPath.startsWith('http')) {
                     newPath = '/uploads/' + newPath;
                     product.image_url = newPath;
                     await product.save();
@@ -100,17 +124,13 @@ app.get('/fix-images', async (req, res) => {
             }
         }
         
-        res.send(`
-            <h1>✅ ${fixed} produits corrigés !</h1>
-            <p>Les chemins d'images ont été réparés.</p>
-            <a href="/">Retour au site</a>
-        `);
+        res.send(`<h1>✅ ${fixed} produits corrigés !</h1><p>Les chemins d'images ont été réparés.</p><a href="/">Retour au site</a>`);
     } catch (e) {
         res.status(500).send('Erreur: ' + e.message);
     }
 });
 
-// --- 6. الروابط (Routes) ---
+// --- 7. الروابط (Routes) ---
 
 // تفعيل حساب الأدمن
 app.get('/setup', async (req, res) => {
@@ -186,12 +206,41 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
-// استقبال طلب جديد
+// استقبال طلب جديد (مع إرسال إشعار إلى التيليجرام)
 app.post('/api/orders', async (req, res) => {
     try {
-        const newOrder = new Order(req.body);
+        const orderData = req.body;
+        
+        // حفظ الطلب في قاعدة البيانات
+        const newOrder = new Order(orderData);
         await newOrder.save();
-        res.json({ success: true });
+        
+        // ====== إرسال إشعار إلى التيليجرام ======
+        const message = `
+🛍️ <b>NOUVELLE COMMANDE !</b>
+
+👤 <b>Client:</b> ${orderData.customer_name}
+📞 <b>Téléphone:</b> ${orderData.phone}
+
+📦 <b>Produit:</b> ${orderData.product_name}
+🔢 <b>Quantité:</b> ${orderData.quantity || 1}
+💵 <b>Total:</b> ${orderData.total_price}
+
+🚚 <b>Livraison:</b> ${orderData.delivery_type}
+📍 <b>Wilaya:</b> ${orderData.wilaya}
+🏘️ <b>Commune:</b> ${orderData.commune}
+🏠 <b>Adresse:</b> ${orderData.address}
+
+📅 <b>Date:</b> ${new Date().toLocaleString('fr-FR')}
+
+✅ <i>Commande reçue avec succès !</i>
+        `;
+        
+        // إرسال الإشعار
+        await sendTelegramMessage(message);
+        console.log('✅ Notification Telegram envoyée');
+        
+        res.json({ success: true, order: newOrder });
     } catch (e) { 
         console.error('Erreur création commande:', e);
         res.status(500).json({ error: e.message }); 
@@ -209,10 +258,29 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
+// مسار اختبار البوت
+app.get('/test-bot', async (req, res) => {
+    const testMessage = `
+🤖 <b>Test du Bot</b>
+✅ Le bot fonctionne correctement !
+📅 ${new Date().toLocaleString('fr-FR')}
+    `;
+    const result = await sendTelegramMessage(testMessage);
+    if (result) {
+        res.send('✅ Message envoyé avec succès à Telegram !');
+    } else {
+        res.status(500).send('❌ Erreur lors de l\'envoi du message');
+    }
+});
+
 // فتح الصفحات
 app.get('/login', (req, res) => res.sendFile(path.join(publicDir, 'login.html')));
 app.get('/ryry-manage', (req, res) => res.sendFile(path.join(publicDir, 'ryry-admin-secret.html')));
 
-// --- 7. تشغيل السيرفر ---
+// --- 8. تشغيل السيرفر ---
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🤖 Bot Telegram prêt !`);
+    console.log(`📱 Testez le bot: http://localhost:${PORT}/test-bot`);
+});
