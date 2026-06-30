@@ -13,9 +13,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- الرابط الصحيح والنظيف (تم تنظيفه من الزيادات) ---
 const dbURI = "mongodb+srv://safaberhail2006_db_user:8BsDrCa7dZemCaia@cluster0.yh4nxpi.mongodb.net/ryry_store?retryWrites=true&w=majority";
-mongoose.connect(dbURI)
-    .then(() => console.log('✅ DATABASE CONNECTED SUCCESSFULLY!'))
-    .catch(err => console.error('❌ DATABASE CONNECTION ERROR:', err.message));
+mongoose.connect(dbURI, { serverSelectionTimeoutMS: 5000 })
+    .then(() => console.log('✅ Connected'))
+    .catch(err => console.error('❌ Connection Error:', err.message));
 
 // الموديلات
 const Admin = mongoose.model('Admin', new mongoose.Schema({ email: { type: String, unique: true }, password: { type: String } }));
@@ -53,11 +53,22 @@ app.get('/api/products', async (req, res) => {
     } catch (e) { res.status(500).json(e); }
 });
 
-app.post('/api/orders', async (req, res) => {
+app.post('/api/products', upload.single('image'), async (req, res) => {
     try {
-        await new Order(req.body).save();
+        console.log("إرسال بيانات المنتج...");
+        const newP = new Product({
+            name_fr: req.body.name_fr,
+            price: Number(req.body.price),
+            old_price: req.body.old_price ? Number(req.body.old_price) : null,
+            image_url: '/uploads/' + req.file.filename
+        });
+        await newP.save();
+        console.log("✅ تم الحفظ بنجاح");
         res.json({ success: true });
-    } catch (e) { res.status(500).json(e); }
+    } catch (e) {
+        console.error("❌ خطأ أثناء الحفظ:", e.message);
+        res.status(500).json({ success: false, error: e.message }); // رد بالخطأ فوراً
+    }
 });
 
 // فتح الصفحات
