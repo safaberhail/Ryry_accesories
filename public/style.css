@@ -67,47 +67,81 @@ h1, h2 { font-family: 'Playfair Display', serif; }
 /* Mobile Query */
 /* 📱 تصحيح مربعات الإحصائيات في الهاتف 📱 */
 @media (max-width: 768px) {
+    /* ── ضبط الهيرو في الهاتف ── */
+    .hero { 
+        text-align: center; 
+        padding-top: 110px; 
+        padding-bottom: 50px;
+        min-height: auto; 
+    }
+
+    .hero h1 { 
+        font-size: 2.4rem; 
+        margin-bottom: 15px; 
+        padding: 0 10px;
+    }
+
+    .hero p { 
+        font-size: 0.95rem; 
+        max-width: 100%; 
+        margin-bottom: 25px; 
+        padding: 0 15px;
+    }
+
+    /* ── زر التسوق ── */
+    .shop-btn {
+        width: 85%;
+        margin: 0 auto 30px auto !important;
+        display: block;
+    }
+
+    /* ── مربع التوصيل (المستطيل الأبيض) ── */
+    .delivery-card-mobile { 
+        display: flex; 
+        background: white; 
+        padding: 12px 20px; 
+        border-radius: 50px; /* جعل الحواف دائرية أكثر */
+        margin: 0 auto 40px auto; /* ترك مسافة كافية تحتها */
+        width: 90%; 
+        align-items: center; 
+        gap: 12px; 
+        text-align: left; 
+        color: var(--primary);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    
+    .fb-text strong { display: inline-block; margin-right: 5px; } /* لإضافة مسافة بين الكلمات */
+
+    /* ── الإحصائيات (التي كانت متداخلة) ── */
     .hero-stats-mobile { 
         display: grid; 
-        grid-template-columns: repeat(3, 1fr); /* تقسيم الشاشة لـ 3 أعمدة */
-        gap: 8px; /* تقليل الفراغ بين المربعات لتوفير مساحة */
-        margin-top: 30px; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 10px; 
+        margin-top: 40px; /* مسافة واضحة تفصلها عما فوقها */
+        border-top: 1px solid rgba(255,255,255,0.1); 
+        padding-top: 25px;
         width: 100%;
     }
 
-    .stat-box { 
-        border: 1px solid rgba(255, 255, 255, 0.2); 
-        padding: 12px 4px; /* تقليل المسافة الداخلية لكي لا يميل النص */
-        border-radius: 15px; 
-        background: rgba(255, 255, 255, 0.03);
-        display: flex;
-        flex-direction: column;
-        align-items: center; /* توسيط أفقي */
-        justify-content: center; /* توسيط عمودي */
-        min-height: 75px; /* توحيد الطول لجميع المربعات */
+    .stat-box {
+        background: rgba(255,255,255,0.05);
+        padding: 10px 5px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
     }
 
     .stat-box span { 
         display: block; 
-        font-size: 1rem; /* تصغير الخط قليلاً ليتناسب مع العرض */
+        font-size: 1.1rem; 
         font-weight: bold; 
         color: var(--gold); 
-        margin-bottom: 4px;
-        line-height: 1;
     }
 
     .stat-box small { 
-        display: block;
-        font-size: 0.55rem; /* تصغير الكلمات التوضيحية لكي لا تنكسر */
-        color: rgba(255, 255, 255, 0.8); 
+        display: block; 
+        font-size: 0.6rem; 
+        color: rgba(255,255,255,0.6); 
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        white-space: nowrap; /* منع الكلمة من الانقسام لسطرين */
+        margin-top: 2px;
     }
-}
-
-/* تعديل إضافي للهواتف الصغيرة جداً (مثل آيفون SE) */
-@media (max-width: 375px) {
-    .stat-box span { font-size: 0.9rem; }
-    .stat-box small { font-size: 0.5rem; }
 }
