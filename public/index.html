@@ -39,7 +39,7 @@
             
             <button class="btn-main shop-btn" onclick="document.getElementById('shop').scrollIntoView()">Shop Collection</button>
             
-            <!-- مربع التوصيل المحدث -->
+            <!-- هذا المربع يظهر في الهاتف فقط -->
             <div class="delivery-card-mobile">
                 <div class="fb-icon">🚚</div>
                 <div class="fb-text">
@@ -48,25 +48,31 @@
                 </div>
             </div>
 
-            <!-- الإحصائيات بشكل صناديق -->
-            <div class="hero-stats-boxes">
-                <div class="stat-box">
-                    <span>2,400+</span>
-                    <small>CLIENTS</small>
-                </div>
-                <div class="stat-box">
-                    <span>10 Ans</span>
-                    <small>GARANTIE</small>
-                </div>
-                <div class="stat-box">
-                    <span>58</span>
-                    <small>WILAYAS</small>
-                </div>
+            <!-- إحصائيات الكمبيوتر (أفقية) -->
+            <div class="hero-stats-desktop">
+                <div class="stat-item"><span>2,400+</span><small>Clients</small></div>
+                <div class="stat-item"><span>10 Ans</span><small>Garantie</small></div>
+                <div class="stat-item"><span>58</span><small>Wilayas</small></div>
+            </div>
+
+            <!-- إحصائيات الهاتف (صناديق) -->
+            <div class="hero-stats-mobile">
+                <div class="stat-box"><span>2,400+</span><small>CLIENTS</small></div>
+                <div class="stat-box"><span>10 Ans</span><small>GARANTIE</small></div>
+                <div class="stat-box"><span>58</span><small>WILAYAS</small></div>
             </div>
         </div>
     </div>
-</header>
-    <div class="marquee">
+    
+    <!-- المربع العائم يظهر في الكمبيوتر فقط -->
+    <div class="floating-desktop">
+        <div class="fb-icon">🚚</div>
+        <div class="fb-text">
+            <strong>Livraison Rapide</strong>
+            <small>Sur les 58 Wilayas</small>
+        </div>
+    </div>
+</header>    <div class="marquee">
         <div class="marquee-track">
             <div class="marquee-item">✨ ACIER INOXYDABLE PREMIUM</div>
             <div class="marquee-item">💎 GARANTIE 10 ANS</div>
