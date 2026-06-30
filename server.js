@@ -66,7 +66,51 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     date: { type: Date, default: Date.now } 
 }));
 
-// --- 5. الروابط (Routes) ---
+// --- 5. مسار إصلاح الصور (تشغيله مرة واحدة) ---
+app.get('/fix-images', async (req, res) => {
+    try {
+        const products = await Product.find();
+        let fixed = 0;
+        
+        for (const product of products) {
+            let newPath = product.image_url;
+            
+            if (newPath) {
+                // إزالة public/ من المسار
+                if (newPath.includes('public/uploads/')) {
+                    newPath = newPath.replace('public/uploads/', '/uploads/');
+                    product.image_url = newPath;
+                    await product.save();
+                    fixed++;
+                }
+                // إضافة / في البداية إذا كان المسار يبدأ بـ uploads/
+                else if (newPath.startsWith('uploads/')) {
+                    newPath = '/' + newPath;
+                    product.image_url = newPath;
+                    await product.save();
+                    fixed++;
+                }
+                // إذا كان المسار لا يبدأ بـ /uploads/ وليس رابطاً كاملاً
+                else if (!newPath.startsWith('/uploads/') && !newPath.startsWith('http')) {
+                    newPath = '/uploads/' + newPath;
+                    product.image_url = newPath;
+                    await product.save();
+                    fixed++;
+                }
+            }
+        }
+        
+        res.send(`
+            <h1>✅ ${fixed} produits corrigés !</h1>
+            <p>Les chemins d'images ont été réparés.</p>
+            <a href="/">Retour au site</a>
+        `);
+    } catch (e) {
+        res.status(500).send('Erreur: ' + e.message);
+    }
+});
+
+// --- 6. الروابط (Routes) ---
 
 // تفعيل حساب الأدمن
 app.get('/setup', async (req, res) => {
@@ -99,13 +143,11 @@ app.get('/api/products', async (req, res) => {
 // إضافة منتج (مع رفع الصورة)
 app.post('/api/products', upload.single('image'), async (req, res) => {
     try {
-        // التأكد من وجود الملف
         if (!req.file) {
             return res.status(400).json({ error: 'Aucune image téléchargée' });
         }
         
         console.log('Fichier reçu:', req.file.filename);
-        console.log('Données:', req.body);
         
         const newP = new Product({
             name_fr: req.body.name_fr,
@@ -171,6 +213,6 @@ app.delete('/api/orders/:id', async (req, res) => {
 app.get('/login', (req, res) => res.sendFile(path.join(publicDir, 'login.html')));
 app.get('/ryry-manage', (req, res) => res.sendFile(path.join(publicDir, 'ryry-admin-secret.html')));
 
-// تشغيل السيرفر
+// --- 7. تشغيل السيرفر ---
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

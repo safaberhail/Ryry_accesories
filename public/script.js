@@ -64,7 +64,7 @@ const algeriaCities = {
 let currentQty = 1;
 let currentUnitPrice = 0;
 
-// أسعار التوصيل
+// 3. أسعار التوصيل
 const deliveryFees = {
     "01": { home: 1100, office: 600 },
     "02": { home: 700, office: 400 },
@@ -126,7 +126,7 @@ const deliveryFees = {
     "58": { home: 1000, office: 500 }
 };
 
-// دالة تحديث البلديات
+// 4. دالة تحديث البلديات
 function updateCommunes() {
     const wilayaId = document.getElementById('cust-wilaya').value;
     const communeSelect = document.getElementById('cust-commune');
@@ -143,7 +143,7 @@ function updateCommunes() {
     }
 }
 
-// دالة حساب المجموع
+// 5. دالة حساب المجموع
 function calculateTotal() {
     const wilayaId = document.getElementById('cust-wilaya').value;
     const deliveryType = document.querySelector('input[name="del-type"]:checked').value;
@@ -170,7 +170,7 @@ function calculateTotal() {
     document.getElementById('total-price').innerText = total + " DA";
 }
 
-// جلب المنتجات وعرضها
+// 6. جلب المنتجات وعرضها
 async function fetchProducts() {
     try {
         const res = await fetch('/api/products');
@@ -183,18 +183,23 @@ async function fetchProducts() {
             let imgPath = '';
             
             if (p.image_url) {
-                // إذا كان المسار يبدأ بـ /uploads/ نستخدمه كما هو
-                if (p.image_url.startsWith('/uploads/')) {
-                    imgPath = p.image_url;
-                } 
-                // إذا كان يبدأ بـ uploads/ بدون slash
-                else if (p.image_url.startsWith('uploads/')) {
-                    imgPath = '/' + p.image_url;
+                // تنظيف المسار
+                let cleanPath = p.image_url;
+                
+                // إزالة public/ إذا وجدت
+                cleanPath = cleanPath.replace(/^public\//, '');
+                
+                // التأكد من أن المسار يبدأ بـ /uploads/
+                if (!cleanPath.startsWith('/uploads/') && !cleanPath.startsWith('http')) {
+                    // إذا كان يبدأ بـ uploads/ بدون slash
+                    if (cleanPath.startsWith('uploads/')) {
+                        cleanPath = '/' + cleanPath;
+                    } else {
+                        cleanPath = '/uploads/' + cleanPath;
+                    }
                 }
-                // إذا كان مجرد اسم ملف
-                else {
-                    imgPath = '/uploads/' + p.image_url;
-                }
+                
+                imgPath = cleanPath;
             }
             
             // صورة افتراضية في حالة عدم وجود صورة أو فشل التحميل
@@ -208,7 +213,10 @@ async function fetchProducts() {
             return `
             <div class="product-card">
                 <div class="product-img-wrapper" style="background:${p.bg_gradient || '#0A4240'}">
-                    <img src="${imgPath || defaultImg}" alt="${p.name_fr}" onerror="this.src='${defaultImg}'">
+                    <img src="${imgPath || defaultImg}" 
+                         alt="${p.name_fr}" 
+                         onerror="this.src='${defaultImg}'"
+                         loading="lazy">
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">${p.name_fr}</h3>
@@ -228,7 +236,7 @@ async function fetchProducts() {
     }
 }
 
-// دالة فتح الطلب
+// 7. دالة فتح الطلب
 function openOrder(pName, price) {
     currentUnitPrice = price;
     currentQty = 1;
@@ -239,16 +247,19 @@ function openOrder(pName, price) {
     
     const modal = document.getElementById('order-modal');
     modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // منع التمرير خلف المودال
     
     calculateTotal();
 }
 
+// 8. دالة إغلاق المودال
 function closeModal() {
     const modal = document.getElementById('order-modal');
     modal.classList.remove('active');
+    document.body.style.overflow = ''; // إعادة التمرير
 }
 
-// التحكم في الكمية
+// 9. التحكم في الكمية
 function changeQty(val) {
     currentQty += val;
     if (currentQty < 1) currentQty = 1;
@@ -256,38 +267,97 @@ function changeQty(val) {
     calculateTotal();
 }
 
-// إرسال الطلب
-document.getElementById('order-form').onsubmit = async (e) => {
-    e.preventDefault();
-    
-    const deliveryType = document.querySelector('input[name="del-type"]:checked').value;
+// 10. إرسال الطلب
+document.addEventListener('DOMContentLoaded', function() {
+    const orderForm = document.getElementById('order-form');
+    if (orderForm) {
+        orderForm.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const deliveryType = document.querySelector('input[name="del-type"]:checked').value;
 
-    const data = {
-        product_name: document.getElementById('selected-product').value,
-        quantity: currentQty,
-        delivery_type: deliveryType === 'home' ? 'Domicile' : 'Bureau/Relais',
-        total_price: document.getElementById('total-price').innerText,
-        customer_name: document.getElementById('cust-name').value,
-        phone: document.getElementById('cust-phone').value,
-        wilaya: document.getElementById('cust-wilaya').options[document.getElementById('cust-wilaya').selectedIndex].text,
-        commune: document.getElementById('cust-commune').value,
-        address: document.getElementById('cust-address').value
-    };
+            const data = {
+                product_name: document.getElementById('selected-product').value,
+                quantity: currentQty,
+                delivery_type: deliveryType === 'home' ? 'Domicile' : 'Bureau/Relais',
+                total_price: document.getElementById('total-price').innerText,
+                customer_name: document.getElementById('cust-name').value,
+                phone: document.getElementById('cust-phone').value,
+                wilaya: document.getElementById('cust-wilaya').options[document.getElementById('cust-wilaya').selectedIndex].text,
+                commune: document.getElementById('cust-commune').value,
+                address: document.getElementById('cust-address').value
+            };
 
-    const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
+            // التحقق من صحة البيانات
+            if (!data.customer_name || !data.phone || !data.wilaya || !data.commune || !data.address) {
+                alert("⚠️ Veuillez remplir tous les champs.");
+                return;
+            }
 
-    if (res.ok) {
-        alert("✅ Merci! Votre commande a été reçue.");
-        closeModal();
-        e.target.reset();
-    } else {
-        alert("❌ Erreur lors de l'envoi de la commande.");
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    alert("✅ Merci! Votre commande a été reçue.");
+                    closeModal();
+                    e.target.reset();
+                    // إعادة تعيين الكمية
+                    currentQty = 1;
+                    document.getElementById('display-qty').innerText = '1';
+                } else {
+                    const error = await res.json();
+                    alert("❌ Erreur: " + (error.error || "Problème lors de l'envoi"));
+                }
+            } catch (err) {
+                alert("❌ Erreur de connexion au serveur.");
+                console.error(err);
+            }
+        };
     }
-};
+});
 
-// تحميل المنتجات عند تشغيل الصفحة
-fetchProducts();
+// 11. إغلاق المودال عند النقر خارجها
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('order-modal');
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// 12. إغلاق المودال عند الضغط على ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+
+// 13. تحميل المنتجات عند تشغيل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    fetchProducts();
+    
+    // التأكد من وجود مستمع لتغيير wilaya
+    const wilayaSelect = document.getElementById('cust-wilaya');
+    if (wilayaSelect) {
+        wilayaSelect.addEventListener('change', function() {
+            updateCommunes();
+            calculateTotal();
+        });
+    }
+    
+    // التأكد من وجود مستمع لتغيير نوع التوصيل
+    const deliveryRadios = document.querySelectorAll('input[name="del-type"]');
+    deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', calculateTotal);
+    });
+});
+
+// 14. دالة مساعدة لفتح المودال من أي مكان (للتوافق مع onclick في HTML)
+window.openOrder = openOrder;
+window.closeModal = closeModal;
+window.changeQty = changeQty;
+window.calculateTotal = calculateTotal;
+window.updateCommunes = updateCommunes;
